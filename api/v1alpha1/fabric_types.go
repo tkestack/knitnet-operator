@@ -29,6 +29,12 @@ type FabricSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
+	// Action represents deploy broker or join cluster to broker
+	// +optional
+	// +kubebuilder:default=broker
+	// +kubebuilder:validation:Enum=broker;join;all
+	Action string `json:"action,omitempty"`
+
 	// BrokerConfig represents the broker cluster configuration of the Submariner.
 	// +optional
 	BrokerConfig `json:"brokerConfig,omitempty"`

@@ -45,10 +45,14 @@ type FabricReconciler struct {
 	client.Client
 	client.Reader
 	*rest.Config
-	Scheme       *runtime.Scheme
-	DeployBroker bool
-	JoinBroker   bool
+	Scheme *runtime.Scheme
 }
+
+const (
+	BrokerAction = "broker"
+	JoinAction   = "join"
+	AllAction    = "all"
+)
 
 //+kubebuilder:rbac:groups=operator.tkestack.io,resources=fabrics,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=operator.tkestack.io,resources=fabrics/status,verbs=get;update;patch
@@ -91,7 +95,7 @@ func (r *FabricReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ c
 	}()
 
 	// Deploy submeriner broker
-	if r.DeployBroker {
+	if instance.Spec.Action == BrokerAction || instance.Spec.Action == AllAction {
 		klog.Info("Deploy submeriner broker")
 		if err := r.DeploySubmerinerBroker(instance); err != nil {
 			return ctrl.Result{}, err
@@ -99,7 +103,7 @@ func (r *FabricReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ c
 	}
 
 	// Join managed cluster to submeriner borker
-	if r.JoinBroker {
+	if instance.Spec.Action == JoinAction || instance.Spec.Action == AllAction {
 		klog.Info("Join managed cluster to submeriner broker")
 		brokerInfo, err := broker.NewFromConfigMap(r.Client)
 		if err != nil {

@@ -49,6 +49,14 @@ spec:
           spec:
             description: FabricSpec defines the desired state of Fabric
             properties:
+              action:
+                default: broker
+                description: Action represents deploy broker or join cluster to broker
+                enum:
+                - broker
+                - join
+                - all
+                type: string
               brokerConfig:
                 description: BrokerConfig represents the broker cluster configuration
                   of the Submariner.

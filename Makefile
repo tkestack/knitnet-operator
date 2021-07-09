@@ -75,10 +75,7 @@ build: generate generate-embeddedyamls fmt vet ## Build manager binary.
 	go build -o bin/manager main.go
 
 run: manifests generate fmt vet ## Run a controller for deploy broker.
-	go run ./main.go --deploy-broker=true
-
-run-join: manifests generate fmt vet ## Run a controller for join broker.
-	go run ./main.go --join-broker=true
+	go run ./main.go
 
 docker-build: test ## Build docker image with the manager.
 	docker build -t ${IMG} .

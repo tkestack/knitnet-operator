@@ -54,16 +54,12 @@ func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
-	var deployBroker bool
-	var joinBroker bool
 
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
-	flag.BoolVar(&deployBroker, "deploy-broker", false, "Enable deploy broker for controller manager. ")
-	flag.BoolVar(&joinBroker, "join-broker", false, "Enable join managed to broker for controller manager. ")
 
 	klog.InitFlags(nil)
 	defer klog.Flush()
@@ -83,12 +79,10 @@ func main() {
 	}
 
 	if err = (&controllers.FabricReconciler{
-		Client:       mgr.GetClient(),
-		Reader:       mgr.GetAPIReader(),
-		Config:       mgr.GetConfig(),
-		Scheme:       mgr.GetScheme(),
-		DeployBroker: deployBroker,
-		JoinBroker:   joinBroker,
+		Client: mgr.GetClient(),
+		Reader: mgr.GetAPIReader(),
+		Config: mgr.GetConfig(),
+		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		klog.Errorf("unable to create controller Fabric: %v", err)
 		os.Exit(1)
