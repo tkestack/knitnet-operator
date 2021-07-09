@@ -1,0 +1,256 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: fabrics.operator.tkestack.io
+spec:
+  group: operator.tkestack.io
+  names:
+    kind: Fabric
+    listKind: FabricList
+    plural: fabrics
+    shortNames:
+    - fb
+    singular: fabric
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - description: Current Cluster Phase
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Created At
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Fabric is the Schema for the fabrics API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: FabricSpec defines the desired state of Fabric
+            properties:
+              brokerConfig:
+                description: BrokerConfig represents the broker cluster configuration
+                  of the Submariner.
+                properties:
+                  defaultCustomDomains:
+                    description: DefaultCustomDomains represents list of domains to
+                      use for multicluster service discovery.
+                    items:
+                      type: string
+                    type: array
+                  defaultGlobalnetClusterSize:
+                    default: 65336
+                    description: DefaultGlobalnetClusterSize represents default cluster
+                      size for global CIDR allocated to each cluster (amount of global
+                      IPs).
+                    type: integer
+                  globalnetCIDRRange:
+                    default: 242.0.0.0/8
+                    description: GlobalnetCIDRRange represents global CIDR supernet
+                      range for allocating global CIDRs to each cluster.
+                    type: string
+                  globalnetEnable:
+                    default: false
+                    description: GlobalnetEnable represents enable/disable overlapping
+                      CIDRs in connecting clusters (default disabled).
+                    type: boolean
+                  serviceDiscoveryEnabled:
+                    default: true
+                    description: ServiceDiscoveryEnabled represents enable/disable
+                      multi-cluster service discovery.
+                    type: boolean
+                type: object
+              cloudPrepareConfig:
+                description: CloudPrepareConfig represents the prepare config for
+                  the cloud vendor.
+                properties:
+                  aws:
+                    description: AWS specific cloud prepare setup
+                    properties:
+                      gatewayInstance:
+                        default: m5n.large
+                        description: GatewayInstance represents type of gateways instance
+                          machine (default "m5n.large")
+                        type: string
+                      gateways:
+                        default: 1
+                        description: Gateways represents the count of worker nodes
+                          that will be used to deploy the Submariner gateway component
+                          on the managed cluster.
+                        type: integer
+                    type: object
+                  credentialsSecret:
+                    description: CredentialsSecret is a reference to the secret with
+                      a certain cloud platform credentials, the supported platform
+                      includes AWS, GCP, Azure, ROKS and OSD. The cluster-fabric-operator
+                      will use these credentials to prepare Submariner cluster environment.
+                      If the submariner cluster environment requires cluster-fabric-operator
+                      preparation, this field should be specified.
+                    properties:
+                      name:
+                        description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          TODO: Add other useful fields. apiVersion, kind, uid?'
+                        type: string
+                    type: object
+                  infraID:
+                    description: Infra ID
+                    type: string
+                  region:
+                    description: Regio
+                    type: string
+                type: object
+              joinConfig:
+                description: JoinConfig represents the managed cluster join configuration
+                  of the Submariner.
+                properties:
+                  cableDriver:
+                    description: CableDriver represents cable driver implementation.
+                    type: string
+                  clusterCIDR:
+                    description: ClusterCIDR represents cluster CIDR.
+                    type: string
+                  clusterID:
+                    description: ClusterID used to identify the tunnels.
+                    type: string
+                  corednsCustomConfigMap:
+                    description: CorednsCustomConfigMap represents name of the custom
+                      CoreDNS configmap to configure forwarding to lighthouse. It
+                      should be in <namespace>/<name> format where <namespace> is
+                      optional and defaults to kube-system
+                    type: string
+                  customDomains:
+                    description: CustomDomains represents list of domains to use for
+                      multicluster service discovery.
+                    items:
+                      type: string
+                    type: array
+                  forceUDPEncaps:
+                    default: false
+                    description: ForceUDPEncaps represents force UDP encapsulation
+                      for IPSec.
+                    type: boolean
+                  globalnetCIDR:
+                    description: GlobalCIDR represents global CIDR to be allocated
+                      to the cluster.
+                    type: string
+                  globalnetClusterSize:
+                    default: 0
+                    description: GlobalnetClusterSize represents cluster size for
+                      GlobalCIDR allocated to this cluster (amount of global IPs).
+                    type: integer
+                  globalnetEnabled:
+                    default: true
+                    description: GlobalnetEnabled represents enable/disable Globalnet
+                      for this cluster.
+                    type: boolean
+                  healthCheckEnable:
+                    default: true
+                    description: HealthCheckEnable represents enable/disable gateway
+                      health check.
+                    type: boolean
+                  healthCheckInterval:
+                    default: 1
+                    description: HealthCheckInterval represents interval in seconds
+                      between health check packets.
+                    format: int64
+                    type: integer
+                  healthCheckMaxPacketLossCount:
+                    default: 5
+                    description: HealthCheckMaxPacketLossCount represents maximum
+                      number of packets lost before the connection is marked as down.
+                    format: int64
+                    type: integer
+                  ikePort:
+                    default: 500
+                    description: IkePort represents IPsec IKE port (default 500).
+                    type: integer
+                  imageOverrideArr:
+                    description: ImageOverrideArr represents override component image.
+                    items:
+                      type: string
+                    type: array
+                  imageVersion:
+                    description: ImageVersion represents image version.
+                    type: string
+                  ipsecDebug:
+                    default: false
+                    description: IpsecDebug represents enable/disable IPsec debugging
+                      (verbose logging).
+                    type: boolean
+                  labelGateway:
+                    default: true
+                    description: LabelGateway represents enable/disable label gateways.
+                    type: boolean
+                  loadBalancerEnabled:
+                    default: false
+                    description: LoadBalancerEnabled represents enable/disable automatic
+                      LoadBalancer in front of the gateways.
+                    type: boolean
+                  natTraversal:
+                    default: true
+                    description: NatTraversal represents enable NAT traversal for
+                      IPsec
+                    type: boolean
+                  nattPort:
+                    default: 4500
+                    description: NattPort represents IPsec NAT-T port (default 4500).
+                    type: integer
+                  preferredServer:
+                    default: false
+                    description: PreferredServer represents enable/disable this cluster
+                      as a preferred server for data-plane connections.
+                    type: boolean
+                  repository:
+                    description: Repository represents image repository.
+                    type: string
+                  serviceCIDR:
+                    description: ServiceCIDR represents service CIDR.
+                    type: string
+                  submarinerDebug:
+                    default: false
+                    description: SubmarinerDebug represents enable/disable submariner
+                      pod debugging (verbose logging in the deployed pods).
+                    type: boolean
+                required:
+                - clusterID
+                type: object
+            type: object
+          status:
+            description: FabricStatus defines the observed state of Fabric
+            properties:
+              phase:
+                description: Phase is the fabric operator running phase.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

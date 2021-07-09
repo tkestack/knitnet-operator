@@ -1,0 +1,21 @@
+apiVersion: operator.tkestack.io/v1alpha1
+kind: Fabric
+metadata:
+  name: join-broker-sample
+spec:
+  joinConfig:
+    clusterID: cls-mdl3wn46
+    # forceUDPEncaps: false
+    # globalnetClusterSize: 0
+    # healthCheckEnable: true
+    # healthCheckInterval: 1
+    # healthCheckMaxPacketLossCount: 5
+    # ikePort: 500
+    # ipsecDebug: false
+    # labelGateway: true
+    # loadBalancerEnabled: false
+    # natTraversal: false
+    # nattPort: 4500
+    # preferredServer: false
+    # submarinerDebug: false
+  # cloudPrepareConfig:

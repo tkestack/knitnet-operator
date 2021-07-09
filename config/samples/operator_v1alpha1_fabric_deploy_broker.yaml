@@ -1,0 +1,8 @@
+apiVersion: operator.tkestack.io/v1alpha1
+kind: Fabric
+metadata:
+  name: deploy-broker-sample
+spec:
+  brokerConfig:
+    # defaultGlobalnetClusterSize: 65336
+    globalnetCIDRRange: 242.0.0.0/16

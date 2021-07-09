@@ -1,0 +1,20 @@
+# permissions for end users to view fabrics.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fabric-viewer-role
+rules:
+- apiGroups:
+  - operator.tkestack.io
+  resources:
+  - fabrics
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - operator.tkestack.io
+  resources:
+  - fabrics/status
+  verbs:
+  - get

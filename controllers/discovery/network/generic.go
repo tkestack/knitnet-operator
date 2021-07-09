@@ -1,0 +1,195 @@
+/*
+Copyright 2021.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package network
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"regexp"
+
+	"github.com/pkg/errors"
+	v1 "k8s.io/api/core/v1"
+	v1meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	constants "github.com/tkestack/cluster-fabric-operator/controllers/discovery"
+)
+
+func discoverGenericNetwork(c client.Client) (*ClusterNetwork, error) {
+	clusterNetwork, err := discoverNetwork(c)
+	if err != nil {
+		return nil, err
+	}
+
+	if clusterNetwork != nil {
+		clusterNetwork.NetworkPlugin = constants.NetworkPluginGeneric
+		return clusterNetwork, nil
+	}
+
+	return nil, nil
+}
+
+func discoverNetwork(c client.Client) (*ClusterNetwork, error) {
+	clusterNetwork := &ClusterNetwork{}
+
+	podIPRange, err := findPodIPRange(c)
+	if err != nil {
+		return nil, err
+	}
+
+	if podIPRange != "" {
+		clusterNetwork.PodCIDRs = []string{podIPRange}
+	}
+
+	clusterIPRange, err := findClusterIPRange(c)
+	if err != nil {
+		return nil, err
+	}
+
+	if clusterIPRange != "" {
+		clusterNetwork.ServiceCIDRs = []string{clusterIPRange}
+	}
+
+	if len(clusterNetwork.PodCIDRs) > 0 || len(clusterNetwork.ServiceCIDRs) > 0 {
+		return clusterNetwork, nil
+	}
+
+	return nil, nil
+}
+
+func findClusterIPRange(c client.Client) (string, error) {
+	clusterIPRange, err := findClusterIPRangeFromApiserver(c)
+	if err != nil || clusterIPRange != "" {
+		return clusterIPRange, err
+	}
+
+	clusterIPRange, err = findClusterIPRangeFromServiceCreation(c)
+	if err != nil || clusterIPRange != "" {
+		return clusterIPRange, err
+	}
+
+	return "", nil
+}
+
+func findClusterIPRangeFromApiserver(c client.Client) (string, error) {
+	return findPodCommandParameter(c, "component=kube-apiserver", "--service-cluster-ip-range")
+}
+
+func findClusterIPRangeFromServiceCreation(c client.Client) (string, error) {
+	ns := os.Getenv("WATCH_NAMESPACE")
+	// WATCH_NAMESPACE env should be set to operator's namespace, if running in operator
+	if ns == "" {
+		// use "default" namespace
+		ns = "default"
+	}
+	// find service cidr based on https://stackoverflow.com/questions/44190607/how-do-you-find-the-cluster-service-cidr-of-a-kubernetes-cluster
+	invalidSvcSpec := &v1.Service{
+		ObjectMeta: v1meta.ObjectMeta{
+			Name:      "invalid-svc",
+			Namespace: ns,
+		},
+		Spec: v1.ServiceSpec{
+			ClusterIP: "1.1.1.1",
+			Ports: []v1.ServicePort{
+				{
+					Port: 443,
+					TargetPort: intstr.IntOrString{
+						IntVal: 443,
+					},
+				},
+			},
+		},
+	}
+	// create service to the namespace
+	err := c.Create(context.TODO(), invalidSvcSpec)
+
+	// creating invalid service didn't fail as expected
+	if err == nil {
+		return "", fmt.Errorf("could not determine the service IP range via service creation - " +
+			"expected a specific error but none was returned")
+	}
+
+	return parseServiceCIDRFrom(err.Error())
+}
+
+func parseServiceCIDRFrom(msg string) (string, error) {
+	// expected msg is below:
+	//   "The Service \"invalid-svc\" is invalid: spec.clusterIPs: Invalid value: []string{\"1.1.1.1\"}:
+	//   failed to allocated ip:1.1.1.1 with error:provided IP is not in the valid range.
+	//   The range of valid IPs is 10.45.0.0/16"
+	// expected matched string is below:
+	//   10.45.0.0/16
+	re := regexp.MustCompile(".*valid IPs is (.*)$")
+
+	match := re.FindStringSubmatch(msg)
+	if match == nil {
+		return "", fmt.Errorf("could not determine the service IP range via service creation - the expected error "+
+			"was not returned. The actual error was %q", msg)
+	}
+
+	// returns first matching string
+	return match[1], nil
+}
+
+func findPodIPRange(c client.Client) (string, error) {
+	podIPRange, err := findPodIPRangeKubeController(c)
+	if err != nil || podIPRange != "" {
+		return podIPRange, err
+	}
+
+	podIPRange, err = findPodIPRangeKubeProxy(c)
+	if err != nil || podIPRange != "" {
+		return podIPRange, err
+	}
+
+	podIPRange, err = findPodIPRangeFromNodeSpec(c)
+	if err != nil || podIPRange != "" {
+		return podIPRange, err
+	}
+
+	return "", nil
+}
+
+func findPodIPRangeKubeController(c client.Client) (string, error) {
+	return findPodCommandParameter(c, "component=kube-controller-manager", "--cluster-cidr")
+}
+
+func findPodIPRangeKubeProxy(c client.Client) (string, error) {
+	return findPodCommandParameter(c, "component=kube-proxy", "--cluster-cidr")
+}
+
+func findPodIPRangeFromNodeSpec(c client.Client) (string, error) {
+	// nodes, err := clientSet.CoreV1().Nodes().List(v1meta.ListOptions{})
+	nodes := &v1.NodeList{}
+	if err := c.List(context.TODO(), nodes); err != nil {
+		return "", errors.WithMessagef(err, "error listing nodes")
+	}
+
+	return parseToPodCidr(nodes.Items)
+}
+
+func parseToPodCidr(nodes []v1.Node) (string, error) {
+	for _, node := range nodes {
+		if node.Spec.PodCIDR != "" {
+			return node.Spec.PodCIDR, nil
+		}
+	}
+
+	return "", nil
+}
