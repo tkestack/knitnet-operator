@@ -1,6 +1,7 @@
-
+# Image repo
+IMG_REPO ?= quay.io/danielxlee
 # Image URL to use all building/pushing image targets
-IMG ?= cluster-fabric-operator:latest
+IMG ?= ${IMG_REPO}/cluster-fabric-operator:latest
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true,preserveUnknownFields=false"
 
@@ -60,7 +61,7 @@ goimports: ## Run goimports for controllers and main.go
 	goimports -w -local github.com/tkestack main.go
 
 lint-go: ## Run lint go
-	golangci-lint run ./... -c common/config/.golangci.yml
+	golangci-lint run ./... -c hack/config/.golangci.yml
 
 ENVTEST_ASSETS_DIR=$(shell pwd)/testbin
 test: manifests generate fmt vet ## Run tests.

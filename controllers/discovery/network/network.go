@@ -117,6 +117,11 @@ func networkPluginsDiscovery(dynClient dynamic.Interface, c client.Client) (*Clu
 		return canalClusterNet, err
 	}
 
+	flannelClusterNet, err := discoverFlannelNetwork(c)
+	if err != nil || flannelClusterNet != nil {
+		return flannelClusterNet, err
+	}
+
 	ovnClusterNet, err := discoverOvnKubernetesNetwork(c)
 	if err != nil || ovnClusterNet != nil {
 		return ovnClusterNet, err

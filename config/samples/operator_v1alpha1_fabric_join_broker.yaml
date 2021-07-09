@@ -4,7 +4,7 @@ metadata:
   name: join-broker-sample
 spec:
   joinConfig:
-    clusterID: cls-mdl3wn46
+    clusterID: cluster-b
     # forceUDPEncaps: false
     # globalnetClusterSize: 0
     # healthCheckEnable: true
