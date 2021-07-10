@@ -54,6 +54,7 @@ const (
 	AllAction    = "all"
 )
 
+//+kubebuilder:rbac:groups=core,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=operator.tkestack.io,resources=fabrics,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=operator.tkestack.io,resources=fabrics/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=operator.tkestack.io,resources=fabrics/finalizers,verbs=update

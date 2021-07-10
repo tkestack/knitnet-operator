@@ -3,6 +3,7 @@ kind: Fabric
 metadata:
   name: join-broker-sample
 spec:
+  actioin: join
   joinConfig:
     clusterID: cluster-b
     # forceUDPEncaps: false
