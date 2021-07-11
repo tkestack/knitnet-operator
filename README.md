@@ -25,6 +25,7 @@
     - [Example](#example)
     - [Prerequisites](#prerequisites)
     - [Quickstart](#quickstart)
+    - [Verify](#verify)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -83,9 +84,11 @@ The setup can be done by using `kustomize`.
       ```
 
     - Deploy broker on `cluster-a`
-  
+
+      Add `publicAPIServerURL` in `./config/samples/deploy_broker.yaml`, find the public apiserver URL with command: `kubectl config view  | grep server | cut -f 2- -d ":" | tr -d " "`
+
       ```shell
-      kubect -n knitnet-operator-system apply -f .config/samples/deploy_broker.yaml
+      kubectl -n knitnet-operator-system apply -f ./config/samples/deploy_broker.yaml
       ```
 
     - Export `submariner-broker-info` configmap to a yaml file
@@ -94,7 +97,7 @@ The setup can be done by using `kustomize`.
       kubectl -n submariner-k8s-broker get cm submariner-broker-info -oyaml > submariner-k8s-broker.yaml
       ```
 
-2. Join cluster to broker
+1. Join cluster to broker
 
      - Install knitnet operator
 
@@ -106,11 +109,44 @@ The setup can be done by using `kustomize`.
      - Create `submariner-broker-info` configmap
 
        ```shell
+       kubectl create ns submariner-k8s-broker
        kubectl apply -f submariner-k8s-broker.yaml
        ```
 
-     - Join `cluster-a` to `cluster-b`
+     - Join `cluster-b` to `cluster-a`
 
        ```shell
-       kubectl -n knitnet-operator-system apply -f .config/samples/join_broker.yaml
+       kubectl -n knitnet-operator-system apply -f ./config/samples/join_broker.yaml
        ```
+
+### Verify
+
+1. Deploy ClusterIP service on `cluster-b`
+
+    ```shell
+    kubectl config use-context cluster-b
+    kubectl -n default create deployment nginx --image=nginx
+    kubectl -n default expose deployment nginx --port=8080
+    ```
+
+1. Export service
+
+   Create following resource on `cluster-b`:
+
+    ```shell
+    kubectl apply -f - <<EOF
+    apiVersion: multicluster.x-k8s.io/v1alpha1
+    kind: ServiceExport
+    metadata:
+      name: nginx
+      namespace: default
+    EOF
+    ```
+
+1. Run `nettest` from `cluster-a` to access the nginx service:
+
+    ```shell
+    kubectl config use-context cluster-a
+    kubectl -n default  run --generator=run-pod/v1 tmp-shell --rm -i --tty --image quay.io/submariner/nettest -- /bin/bash
+    curl nginx.default.svc.clusterset.local:8080
+    ```

@@ -67,6 +67,9 @@ const (
 type Phase string
 
 type BrokerConfig struct {
+	// PublicAPIServerURL represents public access kubernetes API server address.
+	// +optional
+	PublicAPIServerURL string `json:"publicAPIServerURL,omitempty"`
 	// ConnectivityEnabled represents enable/disable multi-cluster pod connectivity.
 	// +optional
 	// +kubebuilder:default=true

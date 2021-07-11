@@ -4,5 +4,7 @@ metadata:
   name: deploy-broker-sample
 spec:
   brokerConfig:
+    publicAPIServerURL: https://xxx.myqcloud.com
     # defaultGlobalnetClusterSize: 65336
     globalnetCIDRRange: 242.0.0.0/16
+    serviceDiscoveryEnabled: true

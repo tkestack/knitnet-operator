@@ -167,7 +167,8 @@ func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Kni
 			return err
 		}
 		klog.Info("Submariner is up and running")
-	} else if brokerInfo.IsServiceDiscoveryEnabled() {
+	}
+	if brokerInfo.IsServiceDiscoveryEnabled() {
 		klog.Info("Deploying service discovery only")
 		serviceDiscoverySpec, err := populateServiceDiscoverySpec(instance, brokerInfo)
 		if err != nil {

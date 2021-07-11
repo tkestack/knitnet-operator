@@ -139,7 +139,6 @@ func NewFromCluster(c client.Client, restConfig *rest.Config) (*BrokerInfo, erro
 	if err != nil {
 		return nil, err
 	}
-	brokerInfo.BrokerURL = restConfig.Host + restConfig.APIPath
 	return brokerInfo, err
 }
 
@@ -150,6 +149,11 @@ func CreateBrokerInfoConfigMap(c client.Client, restConfig *rest.Config, instanc
 		return err
 	}
 	brokerConfig := instance.Spec.BrokerConfig
+	if brokerConfig.PublicAPIServerURL != "" {
+		brokerInfo.BrokerURL = brokerConfig.PublicAPIServerURL
+	} else {
+		brokerInfo.BrokerURL = restConfig.Host + restConfig.APIPath
+	}
 	brokerInfo.GlobalnetCIDRRange = brokerConfig.GlobalnetCIDRRange
 	brokerInfo.DefaultGlobalnetClusterSize = brokerConfig.DefaultGlobalnetClusterSize
 	componentSet := stringset.New()

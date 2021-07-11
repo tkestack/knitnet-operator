@@ -88,6 +88,10 @@ spec:
                     description: GlobalnetEnable represents enable/disable overlapping
                       CIDRs in connecting clusters (default disabled).
                     type: boolean
+                  publicAPIServerURL:
+                    description: PublicAPIServerURL represents public access kubernetes
+                      API server address.
+                    type: string
                   serviceDiscoveryEnabled:
                     default: false
                     description: ServiceDiscoveryEnabled represents enable/disable
