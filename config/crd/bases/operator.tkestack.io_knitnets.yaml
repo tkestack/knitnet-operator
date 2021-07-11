@@ -61,6 +61,11 @@ spec:
                 description: BrokerConfig represents the broker cluster configuration
                   of the Submariner.
                 properties:
+                  connectivityEnabled:
+                    default: true
+                    description: ConnectivityEnabled represents enable/disable multi-cluster
+                      pod connectivity.
+                    type: boolean
                   defaultCustomDomains:
                     description: DefaultCustomDomains represents list of domains to
                       use for multicluster service discovery.
@@ -84,7 +89,7 @@ spec:
                       CIDRs in connecting clusters (default disabled).
                     type: boolean
                   serviceDiscoveryEnabled:
-                    default: true
+                    default: false
                     description: ServiceDiscoveryEnabled represents enable/disable
                       multi-cluster service discovery.
                     type: boolean

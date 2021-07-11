@@ -69,7 +69,7 @@ The setup can be done by using `kustomize`.
 1. Clone source code
 
     ```shell
-    $ git clone https://github.com/tkestack/knitnet-operator.git
+    git clone https://github.com/tkestack/knitnet-operator.git
     ```
 
 1. Deploy broker
@@ -77,21 +77,21 @@ The setup can be done by using `kustomize`.
     - Install knitnet operator
 
       ```shell
-      $ kubectl config use-context cluster-a
-      $ cd knitnet-operator
-      $ make deploy
+      kubectl config use-context cluster-a
+      cd knitnet-operator
+      make deploy
       ```
 
     - Deploy broker on `cluster-a`
   
       ```shell
-      $ kubect -n knitnet-operator-system apply -f .config/samples/deploy_broker.yaml
+      kubect -n knitnet-operator-system apply -f .config/samples/deploy_broker.yaml
       ```
 
     - Export `submariner-broker-info` configmap to a yaml file
 
       ```shell
-      $ kubectl -n submariner-k8s-broker get cm submariner-broker-info -oyaml > submariner-k8s-broker.yaml
+      kubectl -n submariner-k8s-broker get cm submariner-broker-info -oyaml > submariner-k8s-broker.yaml
       ```
 
 2. Join cluster to broker
@@ -99,18 +99,18 @@ The setup can be done by using `kustomize`.
      - Install knitnet operator
 
        ```shell
-       $ kubectl config use-context cluster-b
-       $ make deploy
+       kubectl config use-context cluster-b
+       make deploy
        ```
 
      - Create `submariner-broker-info` configmap
 
        ```shell
-       $ kubectl apply -f submariner-k8s-broker.yaml
+       kubectl apply -f submariner-k8s-broker.yaml
        ```
 
      - Join `cluster-a` to `cluster-b`
 
        ```shell
-       $ kubectl -n knitnet-operator-system apply -f .config/samples/join_broker.yaml
+       kubectl -n knitnet-operator-system apply -f .config/samples/join_broker.yaml
        ```

@@ -59,6 +59,10 @@ const (
 // +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles;rolebindings;clusterroles;clusterrolebindings,verbs=get;list;watch;create;update;delete
 // +kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=get;list;watch;create;update;patch;delete
 
+// Only for join broker
+// +kubebuilder:rbac:groups=config.openshift.io,resources=networks,verbs=get;list
+// +kubebuilder:rbac:groups=operator.openshift.io,resources=dnses,verbs=get;list;watch;update
+
 // +kubebuilder:rbac:groups=security.openshift.io,resources=securitycontextconstraints,verbs=get
 // +kubebuilder:rbac:groups=monitoring.coreos.com,resources=servicemonitors,verbs=get;create
 

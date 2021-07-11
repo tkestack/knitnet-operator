@@ -25,6 +25,13 @@ rules:
   verbs:
   - '*'
 - apiGroups:
+  - config.openshift.io
+  resources:
+  - networks
+  verbs:
+  - get
+  - list
+- apiGroups:
   - ""
   resources:
   - '*'
@@ -72,6 +79,15 @@ rules:
   - get
   - list
   - patch
+  - update
+  - watch
+- apiGroups:
+  - operator.openshift.io
+  resources:
+  - dnses
+  verbs:
+  - get
+  - list
   - update
   - watch
 - apiGroups:

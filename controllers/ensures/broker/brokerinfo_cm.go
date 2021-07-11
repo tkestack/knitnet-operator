@@ -152,7 +152,17 @@ func CreateBrokerInfoConfigMap(c client.Client, restConfig *rest.Config, instanc
 	brokerConfig := instance.Spec.BrokerConfig
 	brokerInfo.GlobalnetCIDRRange = brokerConfig.GlobalnetCIDRRange
 	brokerInfo.DefaultGlobalnetClusterSize = brokerConfig.DefaultGlobalnetClusterSize
-
+	componentSet := stringset.New()
+	if brokerConfig.ConnectivityEnabled {
+		componentSet.Add(components.Connectivity)
+	}
+	if brokerConfig.GlobalnetEnable {
+		componentSet.Add(components.Globalnet)
+	}
+	if brokerConfig.ServiceDiscoveryEnabled {
+		componentSet.Add(components.ServiceDiscovery)
+	}
+	brokerInfo.SetComponents(componentSet)
 	if len(brokerConfig.DefaultCustomDomains) > 0 {
 		brokerInfo.CustomDomains = &brokerConfig.DefaultCustomDomains
 	}

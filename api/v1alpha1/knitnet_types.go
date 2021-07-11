@@ -67,9 +67,13 @@ const (
 type Phase string
 
 type BrokerConfig struct {
-	// ServiceDiscoveryEnabled represents enable/disable multi-cluster service discovery.
+	// ConnectivityEnabled represents enable/disable multi-cluster pod connectivity.
 	// +optional
 	// +kubebuilder:default=true
+	ConnectivityEnabled bool `json:"connectivityEnabled,omitempty"`
+	// ServiceDiscoveryEnabled represents enable/disable multi-cluster service discovery.
+	// +optional
+	// +kubebuilder:default=false
 	ServiceDiscoveryEnabled bool `json:"serviceDiscoveryEnabled,omitempty"`
 	// GlobalnetEnable represents enable/disable overlapping CIDRs in connecting clusters (default disabled).
 	// +optional
