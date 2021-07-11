@@ -1,13 +1,13 @@
-# permissions for end users to view fabrics.
+# permissions for end users to view knitnets.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: fabric-viewer-role
+  name: knitnet-viewer-role
 rules:
 - apiGroups:
   - operator.tkestack.io
   resources:
-  - fabrics
+  - knitnets
   verbs:
   - get
   - list
@@ -15,6 +15,6 @@ rules:
 - apiGroups:
   - operator.tkestack.io
   resources:
-  - fabrics/status
+  - knitnets/status
   verbs:
   - get

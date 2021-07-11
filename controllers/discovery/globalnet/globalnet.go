@@ -29,7 +29,7 @@ import (
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/broker"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/broker"
 )
 
 type GlobalnetInfo struct {

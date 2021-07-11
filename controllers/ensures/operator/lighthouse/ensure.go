@@ -21,8 +21,8 @@ import (
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/lighthouse/scc"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/lighthouse/serviceaccount"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/lighthouse/scc"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/lighthouse/serviceaccount"
 )
 
 func Ensure(c client.Client, config *rest.Config, operatorNamespace string) (bool, error) {

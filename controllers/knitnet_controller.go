@@ -35,13 +35,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	operatorv1alpha1 "github.com/tkestack/cluster-fabric-operator/api/v1alpha1"
-	consts "github.com/tkestack/cluster-fabric-operator/controllers/ensures"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/broker"
+	operatorv1alpha1 "github.com/tkestack/knitnet-operator/api/v1alpha1"
+	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/broker"
 )
 
-// FabricReconciler reconciles a Fabric object
-type FabricReconciler struct {
+// KnitnetReconciler reconciles a Knitnet object
+type KnitnetReconciler struct {
 	client.Client
 	client.Reader
 	*rest.Config
@@ -67,22 +67,22 @@ const (
 // +kubebuilder:rbac:groups=lighthouse.submariner.io,resources=*,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=submariner.io,resources=*,verbs=*
 
-// +kubebuilder:rbac:groups=operator.tkestack.io,resources=fabrics,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=operator.tkestack.io,resources=fabrics/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=operator.tkestack.io,resources=fabrics/finalizers,verbs=update
+// +kubebuilder:rbac:groups=operator.tkestack.io,resources=knitnets,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=operator.tkestack.io,resources=knitnets/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=operator.tkestack.io,resources=knitnets/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the Fabric object against the actual cluster state, and then
+// the Knitnet object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
-func (r *FabricReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, err error) {
-	klog.Infof("Start reconciling Fabric: %s", req.NamespacedName)
-	instance := &operatorv1alpha1.Fabric{}
+func (r *KnitnetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, err error) {
+	klog.Infof("Start reconciling Knitnet: %s", req.NamespacedName)
+	instance := &operatorv1alpha1.Knitnet{}
 
 	if err := r.Client.Get(context.TODO(), req.NamespacedName, instance); err != nil {
 		if errors.IsNotFound(err) {
@@ -126,12 +126,12 @@ func (r *FabricReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ c
 			return ctrl.Result{}, err
 		}
 	}
-	klog.Infof("Finished reconciling Fabric: %s", req.NamespacedName)
+	klog.Infof("Finished reconciling Knitnet: %s", req.NamespacedName)
 	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *FabricReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *KnitnetReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	cmPredicates := predicate.Funcs{
 		CreateFunc: func(e event.CreateEvent) bool {
 			return false
@@ -142,7 +142,7 @@ func (r *FabricReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		DeleteFunc: func(e event.DeleteEvent) bool {
 			labels := e.Object.GetLabels()
 			for labelKey := range labels {
-				if labelKey == consts.FabricNameLabel {
+				if labelKey == consts.KnitnetNameLabel {
 					return true
 				}
 			}
@@ -150,13 +150,13 @@ func (r *FabricReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		},
 	}
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&operatorv1alpha1.Fabric{}).
+		For(&operatorv1alpha1.Knitnet{}).
 		Watches(
 			&source.Kind{Type: &corev1.ConfigMap{}},
 			handler.EnqueueRequestsFromMapFunc(func(obj client.Object) []reconcile.Request {
 				lables := obj.GetLabels()
-				name, nameOk := lables[consts.FabricNameLabel]
-				ns, namespaceOK := lables[consts.FabricNamespaceLabel]
+				name, nameOk := lables[consts.KnitnetNameLabel]
+				ns, namespaceOK := lables[consts.KnitnetNamespaceLabel]
 				if nameOk && namespaceOK {
 					return []reconcile.Request{
 						{NamespacedName: types.NamespacedName{

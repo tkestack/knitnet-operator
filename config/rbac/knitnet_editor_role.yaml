@@ -1,13 +1,13 @@
-# permissions for end users to edit fabrics.
+# permissions for end users to edit knitnets.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: fabric-editor-role
+  name: knitnet-editor-role
 rules:
 - apiGroups:
   - operator.tkestack.io
   resources:
-  - fabrics
+  - knitnets
   verbs:
   - create
   - delete
@@ -19,6 +19,6 @@ rules:
 - apiGroups:
   - operator.tkestack.io
   resources:
-  - fabrics/status
+  - knitnets/status
   verbs:
   - get

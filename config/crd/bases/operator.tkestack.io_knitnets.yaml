@@ -6,16 +6,16 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: fabrics.operator.tkestack.io
+  name: knitnets.operator.tkestack.io
 spec:
   group: operator.tkestack.io
   names:
-    kind: Fabric
-    listKind: FabricList
-    plural: fabrics
+    kind: Knitnet
+    listKind: KnitnetList
+    plural: knitnets
     shortNames:
     - fb
-    singular: fabric
+    singular: knitnet
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -32,7 +32,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Fabric is the Schema for the fabrics API
+        description: Knitnet is the Schema for the knitnets API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -47,7 +47,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: FabricSpec defines the desired state of Fabric
+            description: KnitnetSpec defines the desired state of Knitnet
             properties:
               action:
                 default: broker
@@ -111,9 +111,9 @@ spec:
                   credentialsSecret:
                     description: CredentialsSecret is a reference to the secret with
                       a certain cloud platform credentials, the supported platform
-                      includes AWS, GCP, Azure, ROKS and OSD. The cluster-fabric-operator
+                      includes AWS, GCP, Azure, ROKS and OSD. The knitnet-operator
                       will use these credentials to prepare Submariner cluster environment.
-                      If the submariner cluster environment requires cluster-fabric-operator
+                      If the submariner cluster environment requires knitnet-operator
                       preparation, this field should be specified.
                     properties:
                       name:
@@ -245,10 +245,10 @@ spec:
                 type: object
             type: object
           status:
-            description: FabricStatus defines the observed state of Fabric
+            description: KnitnetStatus defines the observed state of Knitnet
             properties:
               phase:
-                description: Phase is the fabric operator running phase.
+                description: Phase is the knitnet operator running phase.
                 type: string
             type: object
         type: object

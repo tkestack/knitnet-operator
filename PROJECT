@@ -1,8 +1,8 @@
 domain: tkestack.io
 layout:
 - go.kubebuilder.io/v3
-projectName: cluster-fabric-operator
-repo: github.com/tkestack/cluster-fabric-operator
+projectName: knitnet-operator
+repo: github.com/tkestack/knitnet-operator
 resources:
 - api:
     crdVersion: v1
@@ -10,7 +10,7 @@ resources:
   controller: true
   domain: tkestack.io
   group: operator
-  kind: Fabric
-  path: github.com/tkestack/cluster-fabric-operator/api/v1alpha1
+  kind: Knitnet
+  path: github.com/tkestack/knitnet-operator/api/v1alpha1
   version: v1alpha1
 version: "3"

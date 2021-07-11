@@ -77,7 +77,7 @@ rules:
 - apiGroups:
   - operator.tkestack.io
   resources:
-  - fabrics
+  - knitnets
   verbs:
   - create
   - delete
@@ -89,13 +89,13 @@ rules:
 - apiGroups:
   - operator.tkestack.io
   resources:
-  - fabrics/finalizers
+  - knitnets/finalizers
   verbs:
   - update
 - apiGroups:
   - operator.tkestack.io
   resources:
-  - fabrics/status
+  - knitnets/status
   verbs:
   - get
   - patch

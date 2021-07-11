@@ -21,12 +21,12 @@ import (
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	consts "github.com/tkestack/cluster-fabric-operator/controllers/ensures"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/common/namespace"
-	lighthouseop "github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/lighthouse"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/submarinerop/crds"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/submarinerop/deployment"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/submarinerop/serviceaccount"
+	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/namespace"
+	lighthouseop "github.com/tkestack/knitnet-operator/controllers/ensures/operator/lighthouse"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/submarinerop/crds"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/submarinerop/deployment"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/submarinerop/serviceaccount"
 )
 
 func Ensure(c client.Client, config *rest.Config, debug bool) error {
@@ -35,10 +35,8 @@ func Ensure(c client.Client, config *rest.Config, debug bool) error {
 	}
 	klog.Info("Created operator CRDs")
 
-	if created, err := namespace.Ensure(c, consts.SubmarinerOperatorNamespace); err != nil {
+	if err := namespace.Ensure(c, consts.SubmarinerOperatorNamespace); err != nil {
 		return err
-	} else if created {
-		klog.Infof("Created operator namespace: %s", consts.SubmarinerOperatorNamespace)
 	}
 
 	if err := serviceaccount.Ensure(c, consts.SubmarinerOperatorNamespace); err != nil {

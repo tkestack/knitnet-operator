@@ -58,4 +58,4 @@ jobs:
         platforms: linux/amd64,linux/arm64,linux/arm,linux/ppc64le
         file: ./Dockerfile
         push: true
-        tags: quay.io/danielxlee/cluster-fabric-operator:latest
+        tags: quay.io/danielxlee/knitnet-operator:latest

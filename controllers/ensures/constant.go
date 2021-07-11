@@ -26,9 +26,9 @@ const (
 	// SubmarinerBrokerInfo represents the broker info configmap name
 	SubmarinerBrokerInfo = "submariner-broker-info"
 
-	//FabricNameLabel is the label used to label the resource managed by fabric
-	FabricNameLabel = "operator.tkestack.io/fabric-name"
+	//KnitnetNameLabel is the label used to label the resource managed by knitnet
+	KnitnetNameLabel = "operator.tkestack.io/knitnet-name"
 
-	//FabricNamespaceLabel is the label used to label the resource managed by fabric
-	FabricNamespaceLabel = "operator.tkestack.io/fabric-namespace"
+	//KnitnetNamespaceLabel is the label used to label the resource managed by knitnet
+	KnitnetNamespaceLabel = "operator.tkestack.io/knitnet-namespace"
 )

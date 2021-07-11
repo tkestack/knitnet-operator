@@ -27,8 +27,8 @@ Submariner 是由 Rancher 开源的跨集群网络互通解决方案，通过创
 
 通过 Operator 的形式部署 Submariner, operator 将会被部署在每个集群
 
-- 部署 `broker`: 创建 `Fabric` CR, 并配置 `brokerConfig`
-- 部署 `join`: 创建 `Fabric` CR, 并配置 `joinConfig`
+- 部署 `broker`: 创建 `Knitnet` CR, 并配置 `brokerConfig`
+- 部署 `join`: 创建 `Knitnet` CR, 并配置 `joinConfig`
 
 ### 架构
 
@@ -44,10 +44,10 @@ Submariner 是由 Rancher 开源的跨集群网络互通解决方案，通过创
 
 ### API 定义
 
-此 Operator 只有一个 CRD `Fabric`，Submariner 的 deploy，join，prepare cloud 都是通过一个 CR 完成，CR 当中主要包含3部分的配置：`brokerConfig`, `joinConfig` 和 `cloudPrepareConfig`。
+此 Operator 只有一个 CRD `Knitnet`，Submariner 的 deploy，join，prepare cloud 都是通过一个 CR 完成，CR 当中主要包含3部分的配置：`brokerConfig`, `joinConfig` 和 `cloudPrepareConfig`。
 
 ```go
-type FabricSpec struct {
+type KnitnetSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
@@ -68,14 +68,14 @@ type FabricSpec struct {
 API定义：
 ```yaml
 apiVersion: operator.tkestack.io/v1alpha1
-kind: Fabric
+kind: Knitnet
 ```
 
 ### 部署 Submariner broker, 创建下面的资源
 
 ```yaml
 apiVersion: operator.tkestack.io/v1alpha1
-kind: Fabric
+kind: Knitnet
 metadata:
   name: deploy-broker-sample
   namespace: default
@@ -102,8 +102,8 @@ data:
 kind: ConfigMap
 metadata:
   labels:
-    operator.tkestack.io/fabric-name: join-broker-sample
-    operator.tkestack.io/fabric-namespace: default
+    operator.tkestack.io/knitnet-name: join-broker-sample
+    operator.tkestack.io/knitnet-namespace: default
   name: submariner-broker-info
   namespace: submariner-k8s-broker
 ```
@@ -112,7 +112,7 @@ Join broker CR, `clusterID` 目前是必须填写的，后面可以做到自动�
 
 ```yaml
 apiVersion: operator.tkestack.io/v1alpha1
-kind: Fabric
+kind: Knitnet
 metadata:
   name: join-broker-sample
   namespace: default

@@ -26,7 +26,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/common/embeddedyamls"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/embeddedyamls"
 )
 
 // Ensure creates the given service account

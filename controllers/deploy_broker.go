@@ -20,20 +20,20 @@ import (
 	submarinerv1a1 "github.com/submariner-io/submariner-operator/apis/submariner/v1alpha1"
 	"k8s.io/klog/v2"
 
-	consts "github.com/tkestack/cluster-fabric-operator/controllers/ensures"
+	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
 
-	"github.com/tkestack/cluster-fabric-operator/controllers/discovery/globalnet"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/broker"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/brokercr"
+	"github.com/tkestack/knitnet-operator/controllers/discovery/globalnet"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/broker"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/brokercr"
 
-	operatorv1alpha1 "github.com/tkestack/cluster-fabric-operator/api/v1alpha1"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/submarinerop"
+	operatorv1alpha1 "github.com/tkestack/knitnet-operator/api/v1alpha1"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/submarinerop"
 )
 
 // var defaultComponents = []string{components.ServiceDiscovery, components.Connectivity}
 // var validComponents = []string{components.ServiceDiscovery, components.Connectivity, components.Globalnet, components.Broker}
 
-func (r *FabricReconciler) DeploySubmerinerBroker(instance *operatorv1alpha1.Fabric) error {
+func (r *KnitnetReconciler) DeploySubmerinerBroker(instance *operatorv1alpha1.Knitnet) error {
 	brokerConfig := &instance.Spec.BrokerConfig
 
 	// if err := isValidComponents(instance); err != nil {
@@ -82,7 +82,7 @@ func (r *FabricReconciler) DeploySubmerinerBroker(instance *operatorv1alpha1.Fab
 	return nil
 }
 
-// func isValidComponents(instance *operatorv1alpha1.Fabric) error {
+// func isValidComponents(instance *operatorv1alpha1.Knitnet) error {
 // 	componentSet := stringset.New(instance.Spec.BrokerConfig.ComponentArr...)
 // 	validComponentSet := stringset.New(validComponents...)
 
@@ -100,7 +100,7 @@ func (r *FabricReconciler) DeploySubmerinerBroker(instance *operatorv1alpha1.Fab
 // 	return nil
 // }
 
-func isValidGlobalnetConfig(instance *operatorv1alpha1.Fabric) (bool, error) {
+func isValidGlobalnetConfig(instance *operatorv1alpha1.Knitnet) (bool, error) {
 	brokerConfig := &instance.Spec.BrokerConfig
 	var err error
 	if !brokerConfig.GlobalnetEnable {
@@ -113,7 +113,7 @@ func isValidGlobalnetConfig(instance *operatorv1alpha1.Fabric) (bool, error) {
 	return true, err
 }
 
-func populateBrokerSpec(instance *operatorv1alpha1.Fabric) submarinerv1a1.BrokerSpec {
+func populateBrokerSpec(instance *operatorv1alpha1.Knitnet) submarinerv1a1.BrokerSpec {
 	brokerConfig := instance.Spec.BrokerConfig
 	brokerSpec := submarinerv1a1.BrokerSpec{
 		GlobalnetEnabled:            brokerConfig.GlobalnetEnable,

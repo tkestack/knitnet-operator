@@ -26,7 +26,7 @@ import (
 	submariner "github.com/submariner-io/submariner-operator/apis/submariner/v1alpha1"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/names"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/names"
 )
 
 func Ensure(c client.Client, namespace string, serviceDiscoverySpec *submariner.ServiceDiscoverySpec) error {

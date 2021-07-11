@@ -1,4 +1,4 @@
-module github.com/tkestack/cluster-fabric-operator
+module github.com/tkestack/knitnet-operator
 
 go 1.16
 

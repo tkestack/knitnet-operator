@@ -19,9 +19,9 @@ package serviceaccount
 import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/common/serviceaccount"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/serviceaccount"
 
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/common/embeddedyamls"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/embeddedyamls"
 )
 
 // Ensure functions updates or installs the operator CRDs in the cluster

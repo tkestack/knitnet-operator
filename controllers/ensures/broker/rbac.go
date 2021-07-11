@@ -28,7 +28,7 @@ import (
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	consts "github.com/tkestack/cluster-fabric-operator/controllers/ensures"
+	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
 )
 
 const (

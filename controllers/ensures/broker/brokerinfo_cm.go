@@ -31,15 +31,15 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	operatorv1alpha1 "github.com/tkestack/cluster-fabric-operator/api/v1alpha1"
-	"github.com/tkestack/cluster-fabric-operator/controllers/stringset"
+	operatorv1alpha1 "github.com/tkestack/knitnet-operator/api/v1alpha1"
+	"github.com/tkestack/knitnet-operator/controllers/stringset"
 
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"sigs.k8s.io/controller-runtime/pkg/cluster"
 
-	"github.com/tkestack/cluster-fabric-operator/controllers/components"
-	consts "github.com/tkestack/cluster-fabric-operator/controllers/ensures"
+	"github.com/tkestack/knitnet-operator/controllers/components"
+	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
 )
 
 type BrokerInfo struct {
@@ -92,7 +92,7 @@ func NewFromString(str string) (*BrokerInfo, error) {
 	return data, json.Unmarshal(bytes, data)
 }
 
-func (data *BrokerInfo) WriteConfigMap(c client.Client, instance *operatorv1alpha1.Fabric) error {
+func (data *BrokerInfo) WriteConfigMap(c client.Client, instance *operatorv1alpha1.Knitnet) error {
 	cm := &v1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      consts.SubmarinerBrokerInfo,
@@ -100,8 +100,8 @@ func (data *BrokerInfo) WriteConfigMap(c client.Client, instance *operatorv1alph
 		},
 	}
 	labels := make(map[string]string)
-	labels[consts.FabricNameLabel] = instance.GetName()
-	labels[consts.FabricNamespaceLabel] = instance.GetNamespace()
+	labels[consts.KnitnetNameLabel] = instance.GetName()
+	labels[consts.KnitnetNamespaceLabel] = instance.GetNamespace()
 
 	or, err := ctrl.CreateOrUpdate(context.TODO(), c, cm, func() error {
 		dataStr, err := data.ToString()
@@ -143,7 +143,7 @@ func NewFromCluster(c client.Client, restConfig *rest.Config) (*BrokerInfo, erro
 	return brokerInfo, err
 }
 
-func CreateBrokerInfoConfigMap(c client.Client, restConfig *rest.Config, instance *operatorv1alpha1.Fabric) error {
+func CreateBrokerInfoConfigMap(c client.Client, restConfig *rest.Config, instance *operatorv1alpha1.Knitnet) error {
 	klog.Info("Create or update broker info configmap")
 	brokerInfo, err := NewFromCluster(c, restConfig)
 	if err != nil {

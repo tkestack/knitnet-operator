@@ -20,28 +20,22 @@ import (
 	"context"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/types"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/klog/v2"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 // Ensure functions updates or installs the operator CRDs in the cluster
-func Ensure(c client.Client, namespace string) (bool, error) {
-	// clientSet, err := clientset.NewForConfig(restConfig)
-	// if err != nil {
-	// 	return false, err
-	// }
+func Ensure(c client.Client, name string) error {
+	ns := &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: name}}
 
-	ns := &v1.Namespace{}
-	nsKey := types.NamespacedName{Name: namespace}
-	err := c.Get(context.TODO(), nsKey, ns)
-	// _, err = clientSet.CoreV1().Namespaces().Create(ns)
-
-	if err == nil {
-		return true, nil
-	} else if errors.IsAlreadyExists(err) {
-		return false, nil
-	} else {
-		return false, err
+	or, err := ctrl.CreateOrUpdate(context.TODO(), c, ns, func() error {
+		return nil
+	})
+	if err != nil {
+		klog.Errorf("Namespace %s %s failed: %v", name, or, err)
 	}
+	klog.Infof("Namespace %s %s", name, or)
+	return nil
 }

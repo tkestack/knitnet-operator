@@ -19,8 +19,8 @@ package scc
 import (
 	"k8s.io/client-go/rest"
 
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/common/embeddedyamls"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/common/scc"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/embeddedyamls"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/scc"
 )
 
 func Ensure(restConfig *rest.Config, namespace string) (bool, error) {

@@ -26,17 +26,17 @@ import (
 
 	submariner "github.com/submariner-io/submariner-operator/apis/submariner/v1alpha1"
 
-	operatorv1alpha1 "github.com/tkestack/cluster-fabric-operator/api/v1alpha1"
-	cmdVersion "github.com/tkestack/cluster-fabric-operator/controllers/checker"
-	"github.com/tkestack/cluster-fabric-operator/controllers/discovery/globalnet"
-	"github.com/tkestack/cluster-fabric-operator/controllers/discovery/network"
-	consts "github.com/tkestack/cluster-fabric-operator/controllers/ensures"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/broker"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/names"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/servicediscoverycr"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/submarinercr"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/submarinerop"
-	"github.com/tkestack/cluster-fabric-operator/controllers/versions"
+	operatorv1alpha1 "github.com/tkestack/knitnet-operator/api/v1alpha1"
+	cmdVersion "github.com/tkestack/knitnet-operator/controllers/checker"
+	"github.com/tkestack/knitnet-operator/controllers/discovery/globalnet"
+	"github.com/tkestack/knitnet-operator/controllers/discovery/network"
+	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/broker"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/names"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/servicediscoverycr"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/submarinercr"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/submarinerop"
+	"github.com/tkestack/knitnet-operator/controllers/versions"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -59,7 +59,7 @@ var nodeLabelBackoff wait.Backoff = wait.Backoff{
 	Jitter:   1,
 }
 
-func (r *FabricReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Fabric, brokerInfo *broker.BrokerInfo) error {
+func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Knitnet, brokerInfo *broker.BrokerInfo) error {
 	joinConfig := instance.Spec.JoinConfig
 
 	if err := isValidCustomCoreDNSConfig(instance); err != nil {
@@ -182,7 +182,7 @@ func (r *FabricReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Fabr
 	return nil
 }
 
-func (r *FabricReconciler) AllocateAndUpdateGlobalCIDRConfigMap(c client.Client, reader client.Reader, instance *operatorv1alpha1.Fabric, brokerNamespace string,
+func (r *KnitnetReconciler) AllocateAndUpdateGlobalCIDRConfigMap(c client.Client, reader client.Reader, instance *operatorv1alpha1.Knitnet, brokerNamespace string,
 	netconfig *globalnet.Config) error {
 	joinConfig := instance.Spec.JoinConfig
 	klog.Info("Discovering multi cluster details")
@@ -220,7 +220,7 @@ func (r *FabricReconciler) AllocateAndUpdateGlobalCIDRConfigMap(c client.Client,
 	return retryErr
 }
 
-func (r *FabricReconciler) GetNetworkDetails() (*network.ClusterNetwork, error) {
+func (r *KnitnetReconciler) GetNetworkDetails() (*network.ClusterNetwork, error) {
 	dynClient, err := dynamic.NewForConfig(r.Config)
 	if err != nil {
 		return nil, err
@@ -271,7 +271,7 @@ func isValidClusterID(clusterID string) (bool, error) {
 	return true, nil
 }
 
-func populateSubmarinerSpec(instance *operatorv1alpha1.Fabric, brokerInfo *broker.BrokerInfo, netconfig globalnet.Config) (*submariner.SubmarinerSpec, error) {
+func populateSubmarinerSpec(instance *operatorv1alpha1.Knitnet, brokerInfo *broker.BrokerInfo, netconfig globalnet.Config) (*submariner.SubmarinerSpec, error) {
 	joinConfig := instance.Spec.JoinConfig
 	brokerURL := brokerInfo.BrokerURL
 	if idx := strings.Index(brokerURL, "://"); idx >= 0 {
@@ -339,7 +339,7 @@ func populateSubmarinerSpec(instance *operatorv1alpha1.Fabric, brokerInfo *broke
 	return submarinerSpec, nil
 }
 
-func getImageVersion(instance *operatorv1alpha1.Fabric) string {
+func getImageVersion(instance *operatorv1alpha1.Knitnet) string {
 	version := instance.Spec.JoinConfig.ImageVersion
 
 	if version == "" {
@@ -349,7 +349,7 @@ func getImageVersion(instance *operatorv1alpha1.Fabric) string {
 	return version
 }
 
-func getImageRepo(instance *operatorv1alpha1.Fabric) string {
+func getImageRepo(instance *operatorv1alpha1.Knitnet) string {
 	repo := instance.Spec.JoinConfig.Repository
 
 	if repo == "" {
@@ -368,7 +368,7 @@ func removeSchemaPrefix(brokerURL string) string {
 	return brokerURL
 }
 
-func populateServiceDiscoverySpec(instance *operatorv1alpha1.Fabric, brokerInfo *broker.BrokerInfo) (*submariner.ServiceDiscoverySpec, error) {
+func populateServiceDiscoverySpec(instance *operatorv1alpha1.Knitnet, brokerInfo *broker.BrokerInfo) (*submariner.ServiceDiscoverySpec, error) {
 	brokerURL := removeSchemaPrefix(brokerInfo.BrokerURL)
 	joinConfig := instance.Spec.JoinConfig
 	var customDomains []string
@@ -407,7 +407,7 @@ func populateServiceDiscoverySpec(instance *operatorv1alpha1.Fabric, brokerInfo 
 	return &serviceDiscoverySpec, nil
 }
 
-func getImageOverrides(instance *operatorv1alpha1.Fabric) (map[string]string, error) {
+func getImageOverrides(instance *operatorv1alpha1.Knitnet) (map[string]string, error) {
 	joinConfig := instance.Spec.JoinConfig
 	if len(joinConfig.ImageOverrideArr) > 0 {
 		imageOverrides := make(map[string]string)
@@ -434,7 +434,7 @@ func invalidImageName(key string) bool {
 	return true
 }
 
-func isValidCustomCoreDNSConfig(instance *operatorv1alpha1.Fabric) error {
+func isValidCustomCoreDNSConfig(instance *operatorv1alpha1.Knitnet) error {
 	corednsCustomConfigMap := instance.Spec.JoinConfig.CorednsCustomConfigMap
 	if corednsCustomConfigMap != "" && strings.Count(corednsCustomConfigMap, "/") > 1 {
 		klog.Error("coredns-custom-configmap should be in <namespace>/<name> format, namespace is optional")
@@ -443,7 +443,7 @@ func isValidCustomCoreDNSConfig(instance *operatorv1alpha1.Fabric) error {
 	return nil
 }
 
-func getCustomCoreDNSParams(instance *operatorv1alpha1.Fabric) (namespace, name string) {
+func getCustomCoreDNSParams(instance *operatorv1alpha1.Knitnet) (namespace, name string) {
 	corednsCustomConfigMap := instance.Spec.JoinConfig.CorednsCustomConfigMap
 	if corednsCustomConfigMap != "" {
 		name = corednsCustomConfigMap
@@ -456,7 +456,7 @@ func getCustomCoreDNSParams(instance *operatorv1alpha1.Fabric) (namespace, name 
 	return namespace, name
 }
 
-func (r *FabricReconciler) HandleNodeLabels() error {
+func (r *KnitnetReconciler) HandleNodeLabels() error {
 	const submarinerGatewayLabel = "submariner.io/gateway"
 	const trueLabel = "true"
 	selector, err := labels.Parse("submariner.io/gateway=true")
@@ -491,7 +491,7 @@ func (r *FabricReconciler) HandleNodeLabels() error {
 	}
 	return nil
 }
-func (r *FabricReconciler) getWorkerNodeForGateway() (*v1.Node, error) {
+func (r *KnitnetReconciler) getWorkerNodeForGateway() (*v1.Node, error) {
 	// List the worker nodes and select one
 	workerNodes := &v1.NodeList{}
 	workerSelector, err := labels.Parse("node-role.kubernetes.io/worker")
@@ -532,7 +532,7 @@ func (r *FabricReconciler) getWorkerNodeForGateway() (*v1.Node, error) {
 
 // this function was sourced from:
 // https://github.com/kubernetes/kubernetes/blob/a3ccea9d8743f2ff82e41b6c2af6dc2c41dc7b10/test/utils/density_utils.go#L36
-func (r *FabricReconciler) addLabelsToNode(nodeName string, labelsToAdd map[string]string) error {
+func (r *KnitnetReconciler) addLabelsToNode(nodeName string, labelsToAdd map[string]string) error {
 	var tokens = make([]string, 0, len(labelsToAdd))
 	for k, v := range labelsToAdd {
 		tokens = append(tokens, fmt.Sprintf("\"%s\":\"%s\"", k, v))

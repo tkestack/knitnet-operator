@@ -1,5 +1,5 @@
 apiVersion: operator.tkestack.io/v1alpha1
-kind: Fabric
+kind: Knitnet
 metadata:
   name: deploy-broker-sample
 spec:

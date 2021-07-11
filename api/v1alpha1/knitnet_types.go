@@ -24,8 +24,8 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// FabricSpec defines the desired state of Fabric
-type FabricSpec struct {
+// KnitnetSpec defines the desired state of Knitnet
+type KnitnetSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
@@ -48,12 +48,12 @@ type FabricSpec struct {
 	CloudPrepareConfig `json:"cloudPrepareConfig,omitempty"`
 }
 
-// FabricStatus defines the observed state of Fabric
-type FabricStatus struct {
+// KnitnetStatus defines the observed state of Knitnet
+type KnitnetStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Phase is the fabric operator running phase.
+	// Phase is the knitnet operator running phase.
 	// +optional
 	Phase Phase `json:"phase,omitempty"`
 }
@@ -180,8 +180,8 @@ type JoinConfig struct {
 type CloudPrepareConfig struct {
 	// CredentialsSecret is a reference to the secret with a certain cloud platform
 	// credentials, the supported platform includes AWS, GCP, Azure, ROKS and OSD.
-	// The cluster-fabric-operator will use these credentials to prepare Submariner cluster
-	// environment. If the submariner cluster environment requires cluster-fabric-operator
+	// The knitnet-operator will use these credentials to prepare Submariner cluster
+	// environment. If the submariner cluster environment requires knitnet-operator
 	// preparation, this field should be specified.
 	// +optional
 	CredentialsSecret *corev1.LocalObjectReference `json:"credentialsSecret,omitempty"`
@@ -210,28 +210,28 @@ type AWS struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-// +kubebuilder:resource:path=fabrics,shortName=fb,scope=Namespaced
+// +kubebuilder:resource:path=knitnets,shortName=fb,scope=Namespaced
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=.metadata.creationTimestamp
 // +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=.status.phase,description="Current Cluster Phase"
 // +kubebuilder:printcolumn:name="Created At",type=string,JSONPath=.metadata.creationTimestamp
-// Fabric is the Schema for the fabrics API
-type Fabric struct {
+// Knitnet is the Schema for the knitnets API
+type Knitnet struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   FabricSpec   `json:"spec,omitempty"`
-	Status FabricStatus `json:"status,omitempty"`
+	Spec   KnitnetSpec   `json:"spec,omitempty"`
+	Status KnitnetStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// FabricList contains a list of Fabric
-type FabricList struct {
+// KnitnetList contains a list of Knitnet
+type KnitnetList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Fabric `json:"items"`
+	Items           []Knitnet `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&Fabric{}, &FabricList{})
+	SchemeBuilder.Register(&Knitnet{}, &KnitnetList{})
 }

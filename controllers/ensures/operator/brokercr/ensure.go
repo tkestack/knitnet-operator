@@ -25,7 +25,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	consts "github.com/tkestack/cluster-fabric-operator/controllers/ensures"
+	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
 )
 
 func Ensure(c client.Client, brokerSpec submariner.BrokerSpec) error {

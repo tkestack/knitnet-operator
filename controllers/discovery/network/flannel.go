@@ -25,7 +25,7 @@ import (
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	constants "github.com/tkestack/cluster-fabric-operator/controllers/discovery"
+	constants "github.com/tkestack/knitnet-operator/controllers/discovery"
 )
 
 func discoverFlannelNetwork(c client.Client) (*ClusterNetwork, error) {

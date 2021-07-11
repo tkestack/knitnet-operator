@@ -19,8 +19,8 @@ package crds
 import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/common/embeddedyamls"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/utils"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/embeddedyamls"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/utils"
 )
 
 // Ensure functions updates or installs the operator CRDs in the cluster

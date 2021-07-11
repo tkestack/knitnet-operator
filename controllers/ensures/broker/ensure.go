@@ -31,10 +31,10 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	consts "github.com/tkestack/cluster-fabric-operator/controllers/ensures"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/gateway"
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/lighthouse"
-	crdutils "github.com/tkestack/cluster-fabric-operator/controllers/ensures/utils"
+	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/gateway"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/lighthouse"
+	crdutils "github.com/tkestack/knitnet-operator/controllers/ensures/utils"
 )
 
 func Ensure(c client.Client, config *rest.Config, serviceDiscoveryEnabled, globalnetEnabled, crds bool) error {

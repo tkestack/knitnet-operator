@@ -21,7 +21,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	constants "github.com/tkestack/cluster-fabric-operator/controllers/discovery"
+	constants "github.com/tkestack/knitnet-operator/controllers/discovery"
 )
 
 func discoverCalicoNetwork(c client.Client) (*ClusterNetwork, error) {

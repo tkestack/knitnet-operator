@@ -32,8 +32,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
-	operatorv1alpha1 "github.com/tkestack/cluster-fabric-operator/api/v1alpha1"
-	"github.com/tkestack/cluster-fabric-operator/controllers"
+	operatorv1alpha1 "github.com/tkestack/knitnet-operator/api/v1alpha1"
+	"github.com/tkestack/knitnet-operator/controllers"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -78,13 +78,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.FabricReconciler{
+	if err = (&controllers.KnitnetReconciler{
 		Client: mgr.GetClient(),
 		Reader: mgr.GetAPIReader(),
 		Config: mgr.GetConfig(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		klog.Errorf("unable to create controller Fabric: %v", err)
+		klog.Errorf("unable to create controller Knitnet: %v", err)
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

@@ -1,14 +1,14 @@
 <p align="center">
-  <a href="https://github.com/tkestack/cluster-fabric-operator">
-    <img src="https://github.com/tkestack/cluster-fabric-operator/workflows/CI%20Pipeline/badge.svg" alt="Github CI">
+  <a href="https://github.com/tkestack/knitnet-operator">
+    <img src="https://github.com/tkestack/knitnet-operator/workflows/CI%20Pipeline/badge.svg" alt="Github CI">
   </a>
-  <a href="https://goreportcard.com/report/github.com/tkestack/cluster-fabric-operator">
-    <img src="https://goreportcard.com/badge/github.com/tkestack/cluster-fabric-operator" alt="GoReportCard">
+  <a href="https://goreportcard.com/report/github.com/tkestack/knitnet-operator">
+    <img src="https://goreportcard.com/badge/github.com/tkestack/knitnet-operator" alt="GoReportCard">
   </a>
-  <a href="https://quay.io/repository/danielxlee/cluster-fabric-operator">
+  <a href="https://quay.io/repository/danielxlee/knitnet-operator">
     <img src="https://img.shields.io/badge/container-ready-green" alt="Docker">
   </a>
-  <a href="https://github.com/tkestack/cluster-fabric-operator/master/LICENSE">
+  <a href="https://github.com/tkestack/knitnet-operator/master/LICENSE">
     <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
   </a>
 </p>
@@ -17,7 +17,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Cluster Fabric Operator](#cluster-fabric-operator)
+- [Knitnet Operator](#knitnet-operator)
   - [Architecture](#architecture)
     - [Purpose](#purpose)
     - [Supported Features](#supported-features)
@@ -28,9 +28,9 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Cluster Fabric Operator
+# Knitnet Operator
 
-A Golang based fabric operator that will make/oversee Submariner components on top of the Kubernetes.
+A Golang based knitnet operator that will make/oversee Submariner components on top of the Kubernetes.
 
 ## Architecture
 
@@ -56,11 +56,11 @@ Here the features which are supported by this operator:-
 
 ### Example
 
-The configuration of Fabric setup should be described in Fabric CRD. You will find all the examples manifests in [example](./config/samples) folder.
+The configuration of Knitnet setup should be described in Knitnet CRD. You will find all the examples manifests in [example](./config/samples) folder.
 
 ### Prerequisites
 
-Fabric operator requires a Kubernetes cluster of version `>=1.5.0`. If you have just started with Operators, its highly recommended to use latest version of Kubernetes. And the prepare 2 cluster, example `cluster-a` and `cluster-b`
+Knitnet operator requires a Kubernetes cluster of version `>=1.5.0`. If you have just started with Operators, its highly recommended to use latest version of Kubernetes. And the prepare 2 cluster, example `cluster-a` and `cluster-b`
 
 ### Quickstart
 
@@ -69,23 +69,23 @@ The setup can be done by using `kustomize`.
 1. Clone source code
 
     ```shell
-    $ git clone https://github.com/tkestack/cluster-fabric-operator.git
+    $ git clone https://github.com/tkestack/knitnet-operator.git
     ```
 
 1. Deploy broker
 
-    - Install fabric operator
+    - Install knitnet operator
 
       ```shell
       $ kubectl config use-context cluster-a
-      $ cd cluster-fabric-operator
+      $ cd knitnet-operator
       $ make deploy
       ```
 
     - Deploy broker on `cluster-a`
   
       ```shell
-      $ kubect -n cluster-fabric-operator-system apply -f .config/samples/operator_v1alpha1_fabric_deploy_broker.yaml
+      $ kubect -n knitnet-operator-system apply -f .config/samples/deploy_broker.yaml
       ```
 
     - Export `submariner-broker-info` configmap to a yaml file
@@ -94,9 +94,9 @@ The setup can be done by using `kustomize`.
       $ kubectl -n submariner-k8s-broker get cm submariner-broker-info -oyaml > submariner-k8s-broker.yaml
       ```
 
-1. Join cluster to broker
+2. Join cluster to broker
 
-     - Install fabric operator
+     - Install knitnet operator
 
        ```shell
        $ kubectl config use-context cluster-b
@@ -112,5 +112,5 @@ The setup can be done by using `kustomize`.
      - Join `cluster-a` to `cluster-b`
 
        ```shell
-       $ kubectl -n cluster-fabric-operator-system apply -f .config/samples/operator_v1alpha1_fabric_deploy_broker.yaml
+       $ kubectl -n knitnet-operator-system apply -f .config/samples/join_broker.yaml
        ```

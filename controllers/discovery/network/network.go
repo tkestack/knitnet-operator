@@ -26,7 +26,7 @@ import (
 
 	submariner "github.com/submariner-io/submariner-operator/apis/submariner/v1alpha1"
 
-	"github.com/tkestack/cluster-fabric-operator/controllers/ensures/operator/submarinercr"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/submarinercr"
 )
 
 type ClusterNetwork struct {
