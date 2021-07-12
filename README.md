@@ -94,7 +94,7 @@ The setup can be done by using `kustomize`.
     - Export `submariner-broker-info` configmap to a yaml file
 
       ```shell
-      kubectl -n submariner-k8s-broker get cm submariner-broker-info -oyaml > submariner-k8s-broker.yaml
+      kubectl -n knitnet-operator-system get cm submariner-broker-info -oyaml > submariner-k8s-broker.yaml
       ```
 
 1. Join cluster to broker
@@ -109,7 +109,6 @@ The setup can be done by using `kustomize`.
      - Create `submariner-broker-info` configmap
 
        ```shell
-       kubectl create ns submariner-k8s-broker
        kubectl apply -f submariner-k8s-broker.yaml
        ```
 
@@ -126,7 +125,7 @@ The setup can be done by using `kustomize`.
     ```shell
     kubectl config use-context cluster-b
     kubectl -n default create deployment nginx --image=nginx
-    kubectl -n default expose deployment nginx --port=8080
+    kubectl -n default expose deployment nginx --port=80
     ```
 
 1. Export service
@@ -148,5 +147,5 @@ The setup can be done by using `kustomize`.
     ```shell
     kubectl config use-context cluster-a
     kubectl -n default  run --generator=run-pod/v1 tmp-shell --rm -i --tty --image quay.io/submariner/nettest -- /bin/bash
-    curl nginx.default.svc.clusterset.local:8080
+    curl nginx.default.svc.clusterset.local:80
     ```

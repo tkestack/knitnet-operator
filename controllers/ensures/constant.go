@@ -31,4 +31,6 @@ const (
 
 	//KnitnetNamespaceLabel is the label used to label the resource managed by knitnet
 	KnitnetNamespaceLabel = "operator.tkestack.io/knitnet-namespace"
+
+	KnitnetOperatorNamespace = "knitnet-operator-system"
 )

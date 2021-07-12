@@ -96,7 +96,7 @@ func (data *BrokerInfo) WriteConfigMap(c client.Client, instance *operatorv1alph
 	cm := &v1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      consts.SubmarinerBrokerInfo,
-			Namespace: consts.SubmarinerBrokerNamespace,
+			Namespace: consts.KnitnetOperatorNamespace,
 		},
 	}
 	labels := make(map[string]string)
@@ -121,7 +121,7 @@ func (data *BrokerInfo) WriteConfigMap(c client.Client, instance *operatorv1alph
 
 func NewFromConfigMap(c client.Client) (*BrokerInfo, error) {
 	cm := &v1.ConfigMap{}
-	cmKey := types.NamespacedName{Name: consts.SubmarinerBrokerInfo, Namespace: consts.SubmarinerBrokerNamespace}
+	cmKey := types.NamespacedName{Name: consts.SubmarinerBrokerInfo, Namespace: consts.KnitnetOperatorNamespace}
 	if err := c.Get(context.TODO(), cmKey, cm); err != nil {
 		return nil, err
 	}
