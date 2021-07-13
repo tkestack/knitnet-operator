@@ -135,8 +135,8 @@ func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Kni
 		ServiceCIDRAutoDetected: serviceCIDRautoDetected,
 		ClusterCIDR:             clusterCIDR,
 		ClusterCIDRAutoDetected: clusterCIDRautoDetected,
-		GlobalnetCIDR:           brokerInfo.GlobalnetCIDRRange,
-		GlobalnetClusterSize:    brokerInfo.DefaultGlobalnetClusterSize,
+		GlobalnetCIDR:           joinConfig.GlobalnetCIDR,
+		GlobalnetClusterSize:    joinConfig.GlobalnetClusterSize,
 	}
 	if brokerInfo.IsGlobalnetEnabled() {
 		if err = r.AllocateAndUpdateGlobalCIDRConfigMap(brokerCluster.GetClient(), brokerCluster.GetAPIReader(), instance, brokerNamespace, &netconfig); err != nil {
@@ -167,8 +167,7 @@ func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Kni
 			return err
 		}
 		klog.Info("Submariner is up and running")
-	}
-	if brokerInfo.IsServiceDiscoveryEnabled() {
+	} else if brokerInfo.IsServiceDiscoveryEnabled() {
 		klog.Info("Deploying service discovery only")
 		serviceDiscoverySpec, err := populateServiceDiscoverySpec(instance, brokerInfo)
 		if err != nil {
@@ -322,7 +321,6 @@ func populateSubmarinerSpec(instance *operatorv1alpha1.Knitnet, brokerInfo *brok
 		CableDriver:              joinConfig.CableDriver,
 		ServiceDiscoveryEnabled:  brokerInfo.IsServiceDiscoveryEnabled(),
 		ImageOverrides:           imageOverrides,
-		GlobalCIDR:               brokerInfo.GlobalnetCIDRRange,
 	}
 	if netconfig.GlobalnetCIDR != "" {
 		submarinerSpec.GlobalCIDR = netconfig.GlobalnetCIDR

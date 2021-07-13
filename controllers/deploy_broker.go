@@ -20,6 +20,7 @@ import (
 	submarinerv1a1 "github.com/submariner-io/submariner-operator/apis/submariner/v1alpha1"
 	"k8s.io/klog/v2"
 
+	"github.com/tkestack/knitnet-operator/controllers/components"
 	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
 
 	"github.com/tkestack/knitnet-operator/controllers/discovery/globalnet"
@@ -115,10 +116,21 @@ func isValidGlobalnetConfig(instance *operatorv1alpha1.Knitnet) (bool, error) {
 
 func populateBrokerSpec(instance *operatorv1alpha1.Knitnet) submarinerv1a1.BrokerSpec {
 	brokerConfig := instance.Spec.BrokerConfig
+	enabledComponents := []string{}
+	if brokerConfig.ConnectivityEnabled {
+		enabledComponents = append(enabledComponents, components.Connectivity)
+	}
+	if brokerConfig.GlobalnetEnable {
+		enabledComponents = append(enabledComponents, components.Globalnet)
+	}
+	if brokerConfig.ServiceDiscoveryEnabled {
+		enabledComponents = append(enabledComponents, components.ServiceDiscovery)
+	}
 	brokerSpec := submarinerv1a1.BrokerSpec{
 		GlobalnetEnabled:            brokerConfig.GlobalnetEnable,
 		GlobalnetCIDRRange:          brokerConfig.GlobalnetCIDRRange,
 		DefaultGlobalnetClusterSize: brokerConfig.DefaultGlobalnetClusterSize,
+		Components:                  enabledComponents,
 		DefaultCustomDomains:        brokerConfig.DefaultCustomDomains,
 	}
 	return brokerSpec

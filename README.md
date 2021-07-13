@@ -61,7 +61,7 @@ The configuration of Knitnet setup should be described in Knitnet CRD. You will 
 
 ### Prerequisites
 
-Knitnet operator requires a Kubernetes cluster of version `>=1.5.0`. If you have just started with Operators, its highly recommended to use latest version of Kubernetes. And the prepare 2 cluster, example `cluster-a` and `cluster-b`
+Knitnet operator requires a Kubernetes cluster of version `>=1.15.0`. If you have just started with Operators, its highly recommended to use latest version of Kubernetes. And the prepare 2 cluster, example `cluster-a` and `cluster-b`
 
 ### Quickstart
 
@@ -77,11 +77,17 @@ The setup can be done by using `kustomize`.
 
     - Install knitnet operator
 
-      ```shell
-      kubectl config use-context cluster-a
-      cd knitnet-operator
-      make deploy
-      ```
+        Switch to `cluster-a`
+
+        ```shell
+        kubectl config use-context cluster-b
+        ```
+
+        Deploy operator
+
+        ```shell
+        make deploy
+        ```
 
     - Deploy broker on `cluster-a`
 
@@ -94,22 +100,29 @@ The setup can be done by using `kustomize`.
     - Export `submariner-broker-info` configmap to a yaml file
 
       ```shell
-      kubectl -n knitnet-operator-system get cm submariner-broker-info -oyaml > submariner-k8s-broker.yaml
+      kubectl -n knitnet-operator-system get cm submariner-broker-info -oyaml > submariner-broker-info.yaml
       ```
 
-1. Join cluster to broker
+2. Join cluster to broker
 
      - Install knitnet operator
 
-       ```shell
-       kubectl config use-context cluster-b
-       make deploy
-       ```
+        Switch to `cluster-b`
+
+        ```shell
+        kubectl config use-context cluster-b
+        ```
+
+        Deploy operator
+
+        ```shell
+        make deploy
+        ```
 
      - Create `submariner-broker-info` configmap
 
        ```shell
-       kubectl apply -f submariner-k8s-broker.yaml
+       kubectl apply -f submariner-broker-info.yaml
        ```
 
      - Join `cluster-b` to `cluster-a`
@@ -122,8 +135,15 @@ The setup can be done by using `kustomize`.
 
 1. Deploy ClusterIP service on `cluster-b`
 
+    Switch to `cluster-b`
+
     ```shell
     kubectl config use-context cluster-b
+    ```
+
+    Deploy `nginx` service
+
+    ```shell
     kubectl -n default create deployment nginx --image=nginx
     kubectl -n default expose deployment nginx --port=80
     ```

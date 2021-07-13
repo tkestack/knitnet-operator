@@ -123,6 +123,7 @@ func NewFromConfigMap(c client.Client) (*BrokerInfo, error) {
 	cm := &v1.ConfigMap{}
 	cmKey := types.NamespacedName{Name: consts.SubmarinerBrokerInfo, Namespace: consts.KnitnetOperatorNamespace}
 	if err := c.Get(context.TODO(), cmKey, cm); err != nil {
+		klog.Errorf("Get submariner-broker-info configmap failed: %v", err)
 		return nil, err
 	}
 	return NewFromString(cm.Data["brokerInfo"])
