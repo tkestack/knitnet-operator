@@ -71,6 +71,7 @@ The setup can be done by using `kustomize`.
 
     ```shell
     git clone https://github.com/tkestack/knitnet-operator.git
+    cd knitnet-operator
     ```
 
 1. Deploy broker
@@ -80,7 +81,7 @@ The setup can be done by using `kustomize`.
         Switch to `cluster-a`
 
         ```shell
-        kubectl config use-context cluster-b
+        kubectl config use-context cluster-a
         ```
 
         Deploy operator
@@ -164,8 +165,20 @@ The setup can be done by using `kustomize`.
 
 1. Run `nettest` from `cluster-a` to access the nginx service:
 
+    Switch to `cluster-a`
+
     ```shell
     kubectl config use-context cluster-a
+    ```
+
+    Start `nettest` pod for test
+
+    ```shell
     kubectl -n default  run --generator=run-pod/v1 tmp-shell --rm -i --tty --image quay.io/submariner/nettest -- /bin/bash
-    curl nginx.default.svc.clusterset.local:80
+    ```
+
+    Try to curl nginx service created in `cluster-b`
+
+    ```shell
+    curl nginx.default.svc.clusterset.local
     ```
