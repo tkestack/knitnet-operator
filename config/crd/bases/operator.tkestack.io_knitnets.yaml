@@ -177,7 +177,7 @@ spec:
                       GlobalCIDR allocated to this cluster (amount of global IPs).
                     type: integer
                   globalnetEnabled:
-                    default: true
+                    default: false
                     description: GlobalnetEnabled represents enable/disable Globalnet
                       for this cluster.
                     type: boolean

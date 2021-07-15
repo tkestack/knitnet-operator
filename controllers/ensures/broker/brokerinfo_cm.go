@@ -96,7 +96,7 @@ func (data *BrokerInfo) WriteConfigMap(c client.Client, instance *operatorv1alph
 	cm := &v1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      consts.SubmarinerBrokerInfo,
-			Namespace: consts.KnitnetOperatorNamespace,
+			Namespace: consts.SubmarinerBrokerNamespace,
 		},
 	}
 	labels := make(map[string]string)
@@ -120,10 +120,8 @@ func (data *BrokerInfo) WriteConfigMap(c client.Client, instance *operatorv1alph
 }
 
 func NewFromConfigMap(c client.Client) (*BrokerInfo, error) {
-	cm := &v1.ConfigMap{}
-	cmKey := types.NamespacedName{Name: consts.SubmarinerBrokerInfo, Namespace: consts.KnitnetOperatorNamespace}
-	if err := c.Get(context.TODO(), cmKey, cm); err != nil {
-		klog.Errorf("Get submariner-broker-info configmap failed: %v", err)
+	cm, err := GetBrokerInfoConfigMap(c)
+	if err != nil {
 		return nil, err
 	}
 	return NewFromString(cm.Data["brokerInfo"])
@@ -176,6 +174,17 @@ func CreateBrokerInfoConfigMap(c client.Client, restConfig *rest.Config, instanc
 		return err
 	}
 	return nil
+}
+
+func GetBrokerInfoConfigMap(reader client.Reader) (*v1.ConfigMap, error) {
+	klog.Info("Get broker info configmap")
+	cm := &v1.ConfigMap{}
+	cmKey := types.NamespacedName{Name: consts.SubmarinerBrokerInfo, Namespace: consts.SubmarinerBrokerNamespace}
+	if err := reader.Get(context.TODO(), cmKey, cm); err != nil {
+		klog.Errorf("Get submariner-broker-info configmap failed: %v", err)
+		return nil, err
+	}
+	return cm, nil
 }
 
 func (data *BrokerInfo) GetBrokerAdministratorCluster() (cluster.Cluster, error) {

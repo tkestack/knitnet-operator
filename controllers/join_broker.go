@@ -59,7 +59,11 @@ var nodeLabelBackoff wait.Backoff = wait.Backoff{
 	Jitter:   1,
 }
 
-func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Knitnet, brokerInfo *broker.BrokerInfo) error {
+func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Knitnet) error {
+	brokerInfo, err := SyncBrokerInfo(r.Client, r.Reader)
+	if err != nil {
+		return err
+	}
 	joinConfig := instance.Spec.JoinConfig
 
 	if err := isValidCustomCoreDNSConfig(instance); err != nil {
@@ -218,6 +222,36 @@ func (r *KnitnetReconciler) AllocateAndUpdateGlobalCIDRConfigMap(c client.Client
 		return err
 	})
 	return retryErr
+}
+
+func SyncBrokerInfo(c client.Client, reader client.Reader) (*broker.BrokerInfo, error) {
+	localConfigmap, err := broker.GetBrokerInfoConfigMap(reader)
+	if err != nil {
+		return nil, err
+	}
+	brokerInfo, err := broker.NewFromString(localConfigmap.Data["brokerInfo"])
+	if err != nil {
+		return nil, err
+	}
+	brokerCluster, err := brokerInfo.GetBrokerAdministratorCluster()
+	if err != nil {
+		return nil, err
+	}
+	brokerClusterConfigmap, err := broker.GetBrokerInfoConfigMap(brokerCluster.GetAPIReader())
+	if err != nil {
+		return nil, err
+	}
+
+	if localConfigmap.Data["brokerInfo"] != brokerClusterConfigmap.Data["brokerInfo"] {
+		localConfigmap.Data["brokerInfo"] = brokerClusterConfigmap.Data["brokerInfo"]
+		if err := c.Update(context.TODO(), localConfigmap); err != nil {
+			klog.Errorf("Update local broker info configmap failed: %v", err)
+			return nil, err
+		}
+		return broker.NewFromString(localConfigmap.Data["brokerInfo"])
+	}
+
+	return brokerInfo, nil
 }
 
 func (r *KnitnetReconciler) GetNetworkDetails() (*network.ClusterNetwork, error) {

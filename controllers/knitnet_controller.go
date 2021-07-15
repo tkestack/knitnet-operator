@@ -37,7 +37,6 @@ import (
 
 	operatorv1alpha1 "github.com/tkestack/knitnet-operator/api/v1alpha1"
 	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
-	"github.com/tkestack/knitnet-operator/controllers/ensures/broker"
 )
 
 // KnitnetReconciler reconciles a Knitnet object
@@ -122,11 +121,7 @@ func (r *KnitnetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 	// Join managed cluster to submeriner borker
 	if instance.Spec.Action == JoinAction || instance.Spec.Action == AllAction {
 		klog.Info("Join managed cluster to submeriner broker")
-		brokerInfo, err := broker.NewFromConfigMap(r.Client)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		if err := r.JoinSubmarinerCluster(instance, brokerInfo); err != nil {
+		if err := r.JoinSubmarinerCluster(instance); err != nil {
 			return ctrl.Result{}, err
 		}
 	}

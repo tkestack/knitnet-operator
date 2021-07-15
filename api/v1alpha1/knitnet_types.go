@@ -135,7 +135,7 @@ type JoinConfig struct {
 	NatTraversal bool `json:"natTraversal,omitempty"`
 	// GlobalnetEnabled represents enable/disable Globalnet for this cluster.
 	// +optional
-	// +kubebuilder:default=true
+	// +kubebuilder:default=false
 	GlobalnetEnabled bool `json:"globalnetEnabled,omitempty"`
 	// IpsecDebug represents enable/disable IPsec debugging (verbose logging).
 	// +optional

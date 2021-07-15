@@ -63,17 +63,17 @@ func (r *KnitnetReconciler) DeploySubmerinerBroker(instance *operatorv1alpha1.Kn
 		return err
 	}
 
+	if err := broker.CreateGlobalnetConfigMap(r.Client, brokerConfig.GlobalnetEnable, brokerConfig.GlobalnetCIDRRange,
+		brokerConfig.DefaultGlobalnetClusterSize, consts.SubmarinerBrokerNamespace); err != nil {
+		klog.Errorf("Error creating globalCIDR configmap on Broker: %v", err)
+		return err
+	}
+
 	if brokerConfig.GlobalnetEnable {
 		if err := globalnet.ValidateExistingGlobalNetworks(r.Reader, consts.SubmarinerBrokerNamespace); err != nil {
 			klog.Errorf("Error validating existing globalCIDR configmap: %v", err)
 			return err
 		}
-	}
-
-	if err := broker.CreateGlobalnetConfigMap(r.Client, brokerConfig.GlobalnetEnable, brokerConfig.GlobalnetCIDRRange,
-		brokerConfig.DefaultGlobalnetClusterSize, consts.SubmarinerBrokerNamespace); err != nil {
-		klog.Errorf("Error creating globalCIDR configmap on Broker: %v", err)
-		return err
 	}
 
 	if err := broker.CreateBrokerInfoConfigMap(r.Client, r.Config, instance); err != nil {

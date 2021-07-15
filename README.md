@@ -104,7 +104,7 @@ The setup can be done by using `kustomize`.
       kubectl -n knitnet-operator-system get cm submariner-broker-info -oyaml > submariner-broker-info.yaml
       ```
 
-2. Join cluster to broker
+1. Join cluster to broker
 
      - Install knitnet operator
 
@@ -123,6 +123,7 @@ The setup can be done by using `kustomize`.
      - Create `submariner-broker-info` configmap
 
        ```shell
+       kubectl create ns submariner-k8s-broker
        kubectl apply -f submariner-broker-info.yaml
        ```
 
