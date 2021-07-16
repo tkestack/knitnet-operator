@@ -21,7 +21,7 @@ import (
 
 	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/serviceaccount"
 
-	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/embeddedyamls"
+	"github.com/tkestack/knitnet-operator/controllers/embeddedyamls"
 )
 
 // Ensure functions updates or installs the operator CRDs in the cluster

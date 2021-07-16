@@ -27,7 +27,7 @@ import (
 	submariner "github.com/submariner-io/submariner-operator/apis/submariner/v1alpha1"
 
 	operatorv1alpha1 "github.com/tkestack/knitnet-operator/api/v1alpha1"
-	cmdVersion "github.com/tkestack/knitnet-operator/controllers/checker"
+	"github.com/tkestack/knitnet-operator/controllers/checker"
 	"github.com/tkestack/knitnet-operator/controllers/discovery/globalnet"
 	"github.com/tkestack/knitnet-operator/controllers/discovery/network"
 	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
@@ -60,6 +60,16 @@ var nodeLabelBackoff wait.Backoff = wait.Backoff{
 }
 
 func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Knitnet) error {
+	needPatch, err := checker.CheckKubernetesVersion(r.Config)
+	if err != nil {
+		return err
+	}
+	if needPatch {
+		if err := checker.CreateOrUpdateEndpointslicesCRD(r.Client); err != nil {
+			return err
+		}
+	}
+
 	brokerInfo, err := SyncBrokerInfo(r.Client, r.Reader)
 	if err != nil {
 		return err
@@ -89,19 +99,19 @@ func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Kni
 		return err
 	}
 
-	_, failedRequirements, err := cmdVersion.CheckRequirements(r.Config)
-	// We display failed requirements even if an error occurred
-	if len(failedRequirements) > 0 {
-		klog.Info("The target cluster fails to meet Submariner's requirements:")
-		for i := range failedRequirements {
-			klog.Infof("* %s", (failedRequirements)[i])
-		}
-		return fmt.Errorf("the target cluster fails to meet Submariner's requirements")
-	}
-	if err != nil {
-		klog.Errorf("Unable to check all requirements: %v", err)
-		return err
-	}
+	// _, failedRequirements, err := cmdVersion.CheckRequirements(r.Config)
+	// // We display failed requirements even if an error occurred
+	// if len(failedRequirements) > 0 {
+	// 	klog.Info("The target cluster fails to meet Submariner's requirements:")
+	// 	for i := range failedRequirements {
+	// 		klog.Infof("* %s", (failedRequirements)[i])
+	// 	}
+	// 	return fmt.Errorf("the target cluster fails to meet Submariner's requirements")
+	// }
+	// if err != nil {
+	// 	klog.Errorf("Unable to check all requirements: %v", err)
+	// 	return err
+	// }
 	if brokerInfo.IsConnectivityEnabled() && joinConfig.LabelGateway {
 		if err := r.HandleNodeLabels(); err != nil {
 			klog.Errorf("Unable to set the gateway node up: %v", err)
@@ -227,18 +237,22 @@ func (r *KnitnetReconciler) AllocateAndUpdateGlobalCIDRConfigMap(c client.Client
 func SyncBrokerInfo(c client.Client, reader client.Reader) (*broker.BrokerInfo, error) {
 	localConfigmap, err := broker.GetBrokerInfoConfigMap(reader)
 	if err != nil {
+		klog.Errorf("Get local cluster broker info configmap failed: %v", err)
 		return nil, err
 	}
 	brokerInfo, err := broker.NewFromString(localConfigmap.Data["brokerInfo"])
 	if err != nil {
+		klog.Errorf("New broker info configmap from string failed: %v", err)
 		return nil, err
 	}
 	brokerCluster, err := brokerInfo.GetBrokerAdministratorCluster()
 	if err != nil {
+		klog.Errorf("Get broker cluster administrator failed: %v", err)
 		return nil, err
 	}
 	brokerClusterConfigmap, err := broker.GetBrokerInfoConfigMap(brokerCluster.GetAPIReader())
 	if err != nil {
+		klog.Errorf("Get broker cluster broker info configmap failed: %v", err)
 		return nil, err
 	}
 

@@ -20,8 +20,8 @@ import (
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/embeddedyamls"
-	"github.com/tkestack/knitnet-operator/controllers/ensures/utils"
+	"github.com/tkestack/knitnet-operator/controllers/embeddedyamls"
+	"github.com/tkestack/knitnet-operator/controllers/utils"
 )
 
 // Ensure ensures that the required resources are deployed on the target system

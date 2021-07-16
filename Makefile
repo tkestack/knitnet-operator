@@ -45,7 +45,7 @@ generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 generate-embeddedyamls: 
-	go generate controllers/ensures/operator/common/embeddedyamls/generate.go
+	go generate controllers/embeddedyamls/generate.go
 
 fmt: ## Run go fmt against code.
 	go fmt ./...

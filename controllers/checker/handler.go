@@ -13,6 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package embeddedyamls
 
-//go:generate go run generators/yamls2go.go ../../../../../ .
+package checker
+
+import (
+	"k8s.io/klog/v2"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/tkestack/knitnet-operator/controllers/embeddedyamls"
+	"github.com/tkestack/knitnet-operator/controllers/utils"
+)
+
+func CreateOrUpdateEndpointslicesCRD(c client.Client) error {
+	if err := utils.CreateOrUpdateEmbeddedCRD(c, embeddedyamls.Manifests_fix_crds_discovery_k8s_io_endpointslices_yaml); err != nil {
+		klog.Errorf("Error creating the EndpointSlice CRD: %v", err)
+		return err
+	}
+	return nil
+}

@@ -34,7 +34,7 @@ import (
 	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
 	"github.com/tkestack/knitnet-operator/controllers/ensures/gateway"
 	"github.com/tkestack/knitnet-operator/controllers/ensures/lighthouse"
-	crdutils "github.com/tkestack/knitnet-operator/controllers/ensures/utils"
+	crdutils "github.com/tkestack/knitnet-operator/controllers/utils"
 )
 
 func Ensure(c client.Client, config *rest.Config, serviceDiscoveryEnabled, globalnetEnabled, crds bool) error {

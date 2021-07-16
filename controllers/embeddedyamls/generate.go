@@ -13,16 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+package embeddedyamls
 
-package crds
-
-import (
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"github.com/tkestack/knitnet-operator/controllers/embeddedyamls"
-	"github.com/tkestack/knitnet-operator/controllers/utils"
-)
-
-func Ensure(c client.Client) error {
-	return utils.CreateOrUpdateEmbeddedCRD(c, embeddedyamls.Manifests_deploy_crds_submariner_io_servicediscoveries_yaml)
-}
+//go:generate go run generators/yamls2go.go ../../ .

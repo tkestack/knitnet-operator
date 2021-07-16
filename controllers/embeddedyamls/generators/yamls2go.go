@@ -69,6 +69,7 @@ var files = []string{
 	"manifests/config/rbac/networkplugin_syncer/service_account.yaml",
 	"manifests/config/rbac/networkplugin_syncer/cluster_role.yaml",
 	"manifests/config/rbac/networkplugin_syncer/cluster_role_binding.yaml",
+	"manifests/fix/crds/discovery.k8s.io_endpointslices.yaml",
 }
 
 // Reads all .yaml files in the crdDirectory

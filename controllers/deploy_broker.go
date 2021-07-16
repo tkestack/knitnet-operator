@@ -20,6 +20,7 @@ import (
 	submarinerv1a1 "github.com/submariner-io/submariner-operator/apis/submariner/v1alpha1"
 	"k8s.io/klog/v2"
 
+	"github.com/tkestack/knitnet-operator/controllers/checker"
 	"github.com/tkestack/knitnet-operator/controllers/components"
 	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
 
@@ -31,17 +32,18 @@ import (
 	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/submarinerop"
 )
 
-// var defaultComponents = []string{components.ServiceDiscovery, components.Connectivity}
-// var validComponents = []string{components.ServiceDiscovery, components.Connectivity, components.Globalnet, components.Broker}
-
 func (r *KnitnetReconciler) DeploySubmerinerBroker(instance *operatorv1alpha1.Knitnet) error {
+	needPatch, err := checker.CheckKubernetesVersion(r.Config)
+	if err != nil {
+		return err
+	}
+	if needPatch {
+		if err := checker.CreateOrUpdateEndpointslicesCRD(r.Client); err != nil {
+			return err
+		}
+	}
+
 	brokerConfig := &instance.Spec.BrokerConfig
-
-	// if err := isValidComponents(instance); err != nil {
-	// 	klog.Errorf("Invalid components parameter: %v", err)
-	// 	return err
-	// }
-
 	if valid, err := isValidGlobalnetConfig(instance); !valid {
 		klog.Errorf("Invalid GlobalCIDR configuration: %v", err)
 		return err
@@ -82,24 +84,6 @@ func (r *KnitnetReconciler) DeploySubmerinerBroker(instance *operatorv1alpha1.Kn
 	}
 	return nil
 }
-
-// func isValidComponents(instance *operatorv1alpha1.Knitnet) error {
-// 	componentSet := stringset.New(instance.Spec.BrokerConfig.ComponentArr...)
-// 	validComponentSet := stringset.New(validComponents...)
-
-// 	if componentSet.Size() < 1 {
-// 		klog.Info("Use default components")
-// 		instance.Spec.BrokerConfig.ComponentArr = defaultComponents
-// 		return nil
-// 	}
-
-// 	for _, component := range componentSet.Elements() {
-// 		if !validComponentSet.Contains(component) {
-// 			return fmt.Errorf("unknown component: %s", component)
-// 		}
-// 	}
-// 	return nil
-// }
 
 func isValidGlobalnetConfig(instance *operatorv1alpha1.Knitnet) (bool, error) {
 	brokerConfig := &instance.Spec.BrokerConfig

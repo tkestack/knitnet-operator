@@ -14,37 +14,40 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package version
+package checker
 
 import (
 	"fmt"
 	"strconv"
 	"strings"
 
-	"github.com/pkg/errors"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/klog/v2"
 )
 
 const (
-	minK8sMajor = 1 // We need K8s 1.15 for endpoint slices
-	minK8sMinor = 15
+	minK8sMajor  = 1  // We need K8s 1.15 for endpoint slices
+	minK8sMinor  = 15 // Need patch if k8s minor version < 17 and >= 15
+	goodK8sMinor = 17 // Don't need patch if k8s minor version >= 17
 )
 
-func CheckRequirements(config *rest.Config) (string, []string, error) {
-	failedRequirements := []string{}
+func CheckKubernetesVersion(config *rest.Config) (bool, error) {
+	needPatch := false
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		return "", failedRequirements, errors.WithMessage(err, "error creating API server client")
+		klog.Errorf("Error creating API server client: %v", err)
+		return needPatch, err
 	}
 	serverVersion, err := clientset.Discovery().ServerVersion()
 	if err != nil {
-		return "", failedRequirements, errors.WithMessage(err, "error obtaining API server version")
+		klog.Errorf("Error obtaining API server version: %v", err)
+		return needPatch, err
 	}
 	major, err := strconv.Atoi(serverVersion.Major)
 	if err != nil {
-		return serverVersion.String(), failedRequirements,
-			errors.WithMessagef(err, "error parsing API server major version %v", serverVersion.Major)
+		klog.Errorf("Error parsing API server major version %v", err)
+		return needPatch, err
 	}
 	var minor int
 	if strings.HasSuffix(serverVersion.Minor, "+") {
@@ -53,13 +56,19 @@ func CheckRequirements(config *rest.Config) (string, []string, error) {
 		minor, err = strconv.Atoi(serverVersion.Minor)
 	}
 	if err != nil {
-		return serverVersion.String(), failedRequirements,
-			errors.WithMessagef(err, "error parsing API server minor version %v", serverVersion.Minor)
+		klog.Errorf("Error parsing API server minor version %v", err)
+		return needPatch, err
 	}
+
 	if major < minK8sMajor || (major == minK8sMajor && minor < minK8sMinor) {
-		failedRequirements = append(failedRequirements,
-			fmt.Sprintf("Submariner requires Kubernetes %d.%d; your cluster is running %s.%s",
-				minK8sMajor, minK8sMinor, serverVersion.Major, serverVersion.Minor))
+		klog.Errorf("Submariner requires Kubernetes %d.%d; your cluster is running %s.%s",
+			minK8sMajor, minK8sMinor, serverVersion.Major, serverVersion.Minor)
+		return needPatch, fmt.Errorf("submariner requires Kubernetes %d.%d; your cluster is running %s.%s",
+			minK8sMajor, minK8sMinor, serverVersion.Major, serverVersion.Minor)
+	} else {
+		if minor < goodK8sMinor {
+			needPatch = true
+		}
+		return needPatch, nil
 	}
-	return serverVersion.String(), failedRequirements, nil
 }

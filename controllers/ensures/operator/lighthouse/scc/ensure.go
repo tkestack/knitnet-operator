@@ -19,7 +19,7 @@ package scc
 import (
 	"k8s.io/client-go/rest"
 
-	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/embeddedyamls"
+	"github.com/tkestack/knitnet-operator/controllers/embeddedyamls"
 	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/scc"
 )
 
