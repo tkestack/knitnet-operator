@@ -20,7 +20,7 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/tkestack/knitnet-operator/controllers/embeddedyamls"
-	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/scc"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/common/scc"
 )
 
 func Ensure(restConfig *rest.Config, namespace string) (bool, error) {

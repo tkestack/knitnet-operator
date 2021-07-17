@@ -51,13 +51,6 @@ func (cn *ClusterNetwork) Show() {
 	}
 }
 
-// func (cn *ClusterNetwork) Log(logger logr.Logger) {
-// 	logger.Info("Discovered K8s network details",
-// 		"plugin", cn.NetworkPlugin,
-// 		"clusterCIDRs", cn.PodCIDRs,
-// 		"serviceCIDRs", cn.ServiceCIDRs)
-// }
-
 func (cn *ClusterNetwork) IsComplete() bool {
 	return cn != nil && len(cn.ServiceCIDRs) > 0 && len(cn.PodCIDRs) > 0
 }

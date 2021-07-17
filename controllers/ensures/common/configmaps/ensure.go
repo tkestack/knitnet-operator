@@ -14,31 +14,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package servicediscoverycr
+package configmaps
 
 import (
 	"context"
 
+	"github.com/tkestack/knitnet-operator/controllers/embeddedyamls"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog/v2"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	submariner "github.com/submariner-io/submariner-operator/apis/submariner/v1alpha1"
 	ctrl "sigs.k8s.io/controller-runtime"
-
-	"github.com/tkestack/knitnet-operator/controllers/ensures/names"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func Ensure(c client.Client, namespace string, serviceDiscoverySpec *submariner.ServiceDiscoverySpec) error {
-	sd := &submariner.ServiceDiscovery{ObjectMeta: metav1.ObjectMeta{Name: names.ServiceDiscoveryCrName, Namespace: namespace}}
-	or, err := ctrl.CreateOrUpdate(context.TODO(), c, sd, func() error {
-		sd.Spec = *serviceDiscoverySpec
+func EnsureConfigMap(c client.Client, namespace, yaml string) error {
+	cmName, err := embeddedyamls.GetObjectName(yaml)
+	if err != nil {
+		return err
+	}
+	cm := &corev1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: cmName, Namespace: namespace}}
+	or, err := ctrl.CreateOrUpdate(context.TODO(), c, cm, func() error {
+		if err := embeddedyamls.GetObject(yaml, cm); err != nil {
+			return err
+		}
 		return nil
 	})
 	if err != nil {
-		klog.Errorf("Failed to %s ServiceDiscovery %s: %v", or, sd.GetName(), err)
+		klog.Errorf("Failed to %s ConfigMap %s: %v", or, cm.GetName(), err)
 		return err
 	}
-	klog.Infof("ServiceDiscovery %s %s", sd.GetName(), or)
+	klog.V(2).Infof("ConfigMap %s %s", cm.GetName(), or)
 	return nil
 }

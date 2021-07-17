@@ -19,7 +19,7 @@ package serviceaccount
 import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/serviceaccount"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/common/serviceaccount"
 
 	"github.com/tkestack/knitnet-operator/controllers/embeddedyamls"
 )
@@ -50,27 +50,27 @@ func Ensure(c client.Client, namespace string) error {
 }
 
 func ensureServiceAccounts(c client.Client, namespace string) error {
-	if err := serviceaccount.Ensure(c, namespace,
+	if err := serviceaccount.EnsureServiceAccount(c, namespace,
 		embeddedyamls.Manifests_config_rbac_submariner_operator_service_account_yaml); err != nil {
 		return err
 	}
 
-	if err := serviceaccount.Ensure(c, namespace,
+	if err := serviceaccount.EnsureServiceAccount(c, namespace,
 		embeddedyamls.Manifests_config_rbac_submariner_gateway_service_account_yaml); err != nil {
 		return err
 	}
 
-	if err := serviceaccount.Ensure(c, namespace,
+	if err := serviceaccount.EnsureServiceAccount(c, namespace,
 		embeddedyamls.Manifests_config_rbac_submariner_route_agent_service_account_yaml); err != nil {
 		return err
 	}
 
-	if err := serviceaccount.Ensure(c, namespace,
+	if err := serviceaccount.EnsureServiceAccount(c, namespace,
 		embeddedyamls.Manifests_config_rbac_submariner_globalnet_service_account_yaml); err != nil {
 		return err
 	}
 
-	if err := serviceaccount.Ensure(c, namespace,
+	if err := serviceaccount.EnsureServiceAccount(c, namespace,
 		embeddedyamls.Manifests_config_rbac_networkplugin_syncer_service_account_yaml); err != nil {
 		return err
 	}

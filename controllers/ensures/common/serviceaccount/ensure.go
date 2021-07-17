@@ -29,8 +29,8 @@ import (
 	"github.com/tkestack/knitnet-operator/controllers/embeddedyamls"
 )
 
-// Ensure creates the given service account
-func Ensure(c client.Client, namespace, yaml string) error {
+// EnsureServiceAccount creates the given service account
+func EnsureServiceAccount(c client.Client, namespace, yaml string) error {
 	saName, err := embeddedyamls.GetObjectName(yaml)
 	if err != nil {
 		return err

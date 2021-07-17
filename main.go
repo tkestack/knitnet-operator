@@ -22,7 +22,11 @@ import (
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
-	submariner "github.com/submariner-io/submariner-operator/apis/submariner/v1alpha1"
+	submarineropv1alpha1 "github.com/submariner-io/submariner-operator/apis/submariner/v1alpha1"
+	submarinerv1 "github.com/submariner-io/submariner/pkg/apis/submariner.io/v1"
+	operatorv1alpha1 "github.com/tkestack/knitnet-operator/api/v1alpha1"
+	"github.com/tkestack/knitnet-operator/controllers"
+	policy "k8s.io/api/policy/v1beta1"
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -31,9 +35,6 @@ import (
 	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
-
-	operatorv1alpha1 "github.com/tkestack/knitnet-operator/api/v1alpha1"
-	"github.com/tkestack/knitnet-operator/controllers"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -44,8 +45,9 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 	utilruntime.Must(apiextensions.AddToScheme(scheme))
-	utilruntime.Must(submariner.AddToScheme(scheme))
-
+	utilruntime.Must(submarinerv1.AddToScheme(scheme))
+	utilruntime.Must(submarineropv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(policy.AddToScheme(scheme))
 	utilruntime.Must(operatorv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }

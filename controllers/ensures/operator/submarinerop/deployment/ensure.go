@@ -19,8 +19,8 @@ package deployment
 import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/tkestack/knitnet-operator/controllers/ensures/common/operatorpod"
 	"github.com/tkestack/knitnet-operator/controllers/ensures/names"
-	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/operatorpod"
 )
 
 // Ensure the operator is deployed, and running

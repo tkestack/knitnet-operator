@@ -28,7 +28,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/deployments"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/common/deployments"
 )
 
 const deploymentCheckInterval = 5 * time.Second

@@ -14,31 +14,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package servicediscoverycr
+package deployments
 
 import (
 	"context"
 
+	"github.com/tkestack/knitnet-operator/controllers/embeddedyamls"
+	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog/v2"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	submariner "github.com/submariner-io/submariner-operator/apis/submariner/v1alpha1"
 	ctrl "sigs.k8s.io/controller-runtime"
-
-	"github.com/tkestack/knitnet-operator/controllers/ensures/names"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func Ensure(c client.Client, namespace string, serviceDiscoverySpec *submariner.ServiceDiscoverySpec) error {
-	sd := &submariner.ServiceDiscovery{ObjectMeta: metav1.ObjectMeta{Name: names.ServiceDiscoveryCrName, Namespace: namespace}}
-	or, err := ctrl.CreateOrUpdate(context.TODO(), c, sd, func() error {
-		sd.Spec = *serviceDiscoverySpec
+func EnsureDeployment(c client.Client, namespace, yaml string) error {
+	deployName, err := embeddedyamls.GetObjectName(yaml)
+	if err != nil {
+		return err
+	}
+	deploy := &appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: deployName, Namespace: namespace}}
+	or, err := ctrl.CreateOrUpdate(context.TODO(), c, deploy, func() error {
+		if err := embeddedyamls.GetObject(yaml, deploy); err != nil {
+			return err
+		}
 		return nil
 	})
 	if err != nil {
-		klog.Errorf("Failed to %s ServiceDiscovery %s: %v", or, sd.GetName(), err)
+		klog.Errorf("Failed to %s Deployment %s: %v", or, deploy.GetName(), err)
 		return err
 	}
-	klog.Infof("ServiceDiscovery %s %s", sd.GetName(), or)
+	klog.V(2).Infof("Deployment %s %s", deploy.GetName(), or)
 	return nil
 }

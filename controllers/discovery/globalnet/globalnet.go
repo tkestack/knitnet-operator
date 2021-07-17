@@ -58,6 +58,7 @@ type CIDR struct {
 }
 
 type Config struct {
+	NetworkPlugin           string
 	ClusterCIDR             string
 	ClusterID               string
 	GlobalnetCIDR           string

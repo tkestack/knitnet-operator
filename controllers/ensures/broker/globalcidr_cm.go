@@ -37,8 +37,9 @@ const (
 )
 
 type ClusterInfo struct {
-	ClusterID  string   `json:"cluster_id"`
-	GlobalCidr []string `json:"global_cidr"`
+	ClusterID     string   `json:"cluster_id"`
+	NetworkPlugin string   `json:"network_plugin"`
+	GlobalCidr    []string `json:"global_cidr"`
 }
 
 func CreateGlobalnetConfigMap(c client.Client, globalnetEnabled bool, defaultGlobalCidrRange string,
@@ -90,28 +91,29 @@ func GeneralGlobalnetConfigMap(cm *v1.ConfigMap, globalnetEnabled bool, defaultG
 
 func UpdateGlobalnetConfigMap(c client.Client, namespace string,
 	configMap *v1.ConfigMap, newCluster ClusterInfo) error {
-	var clusterInfo []ClusterInfo
-	err := json.Unmarshal([]byte(configMap.Data[ClusterInfoKey]), &clusterInfo)
+	var clusterInfos []ClusterInfo
+	err := json.Unmarshal([]byte(configMap.Data[ClusterInfoKey]), &clusterInfos)
 	if err != nil {
 		return err
 	}
 
 	exists := false
-	for k, value := range clusterInfo {
+	for k, value := range clusterInfos {
 		if value.ClusterID == newCluster.ClusterID {
-			clusterInfo[k].GlobalCidr = newCluster.GlobalCidr
+			clusterInfos[k].GlobalCidr = newCluster.GlobalCidr
 			exists = true
 		}
 	}
 
 	if !exists {
-		var newEntry ClusterInfo
-		newEntry.ClusterID = newCluster.ClusterID
-		newEntry.GlobalCidr = newCluster.GlobalCidr
-		clusterInfo = append(clusterInfo, newEntry)
+		// var newEntry ClusterInfo
+		// newEntry.ClusterID = newCluster.ClusterID
+		// newEntry.NetworkPlugin = newCluster.NetworkPlugin
+		// newEntry.GlobalCidr = newCluster.GlobalCidr
+		clusterInfos = append(clusterInfos, newCluster)
 	}
 
-	data, err := json.MarshalIndent(clusterInfo, "", "\t")
+	data, err := json.MarshalIndent(clusterInfos, "", "\t")
 	if err != nil {
 		return err
 	}
@@ -127,4 +129,17 @@ func GetGlobalnetConfigMap(reader client.Reader, namespace string) (*v1.ConfigMa
 		return nil, err
 	}
 	return cm, nil
+}
+
+func GetClusterInfos(reader client.Reader, namespace string) ([]ClusterInfo, error) {
+	cm, err := GetGlobalnetConfigMap(reader, namespace)
+	if err != nil {
+		return nil, err
+	}
+	var clusterInfos []ClusterInfo
+	err = json.Unmarshal([]byte(cm.Data[ClusterInfoKey]), &clusterInfos)
+	if err != nil {
+		return nil, err
+	}
+	return clusterInfos, nil
 }

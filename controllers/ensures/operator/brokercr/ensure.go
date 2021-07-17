@@ -21,7 +21,7 @@ import (
 
 	submariner "github.com/submariner-io/submariner-operator/apis/submariner/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -29,17 +29,6 @@ import (
 )
 
 func Ensure(c client.Client, brokerSpec submariner.BrokerSpec) error {
-	// brokerCR := &submariner.Broker{
-	// 	ObjectMeta: metav1.ObjectMeta{
-	// 		Name:      consts.SubmarinerBrokerName,
-	// 		Namespace: consts.SubmarinerOperatorNamespace,
-	// 	},
-	// 	Spec: brokerSpec,
-	// }
-
-	// _, err := utils.CreateOrUpdate(c, brokerCR)
-	// return err
-
 	brokerCR := &submariner.Broker{ObjectMeta: metav1.ObjectMeta{Name: consts.SubmarinerBrokerName, Namespace: consts.SubmarinerOperatorNamespace}}
 	or, err := ctrl.CreateOrUpdate(context.TODO(), c, brokerCR, func() error {
 		brokerCR.Spec = brokerSpec

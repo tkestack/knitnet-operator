@@ -38,6 +38,7 @@ import (
 	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/submarinerop"
 	"github.com/tkestack/knitnet-operator/controllers/versions"
 
+	netconsts "github.com/tkestack/knitnet-operator/controllers/discovery"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -82,16 +83,7 @@ func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Kni
 	}
 
 	if joinConfig.ClusterID == "" {
-		// r.Config
-		// rawConfig, err := r.Config.RawConfig()
-		// // This will be fatal later, no point in continuing
-		// utils.ExitOnError("Error connecting to the target cluster", err)
-		// clusterName := restconfig.ClusterNameFromContext(rawConfig, contextName)
-		// if clusterName != nil {
-		// 	clusterID = *clusterName
-		// }
-		klog.Errorf("Invalid ClusterID")
-		return fmt.Errorf("invalid ClusterID")
+		// TBD auto generate a cluster ID
 	}
 
 	if valid, err := isValidClusterID(joinConfig.ClusterID); !valid {
@@ -99,19 +91,6 @@ func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Kni
 		return err
 	}
 
-	// _, failedRequirements, err := cmdVersion.CheckRequirements(r.Config)
-	// // We display failed requirements even if an error occurred
-	// if len(failedRequirements) > 0 {
-	// 	klog.Info("The target cluster fails to meet Submariner's requirements:")
-	// 	for i := range failedRequirements {
-	// 		klog.Infof("* %s", (failedRequirements)[i])
-	// 	}
-	// 	return fmt.Errorf("the target cluster fails to meet Submariner's requirements")
-	// }
-	// if err != nil {
-	// 	klog.Errorf("Unable to check all requirements: %v", err)
-	// 	return err
-	// }
 	if brokerInfo.IsConnectivityEnabled() && joinConfig.LabelGateway {
 		if err := r.HandleNodeLabels(); err != nil {
 			klog.Errorf("Unable to set the gateway node up: %v", err)
@@ -144,6 +123,7 @@ func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Kni
 	brokerNamespace := string(brokerInfo.ClientToken.Data["namespace"])
 
 	netconfig := globalnet.Config{
+		NetworkPlugin:           networkDetails.NetworkPlugin,
 		ClusterID:               joinConfig.ClusterID,
 		ServiceCIDR:             serviceCIDR,
 		ServiceCIDRAutoDetected: serviceCIDRautoDetected,
@@ -152,9 +132,24 @@ func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Kni
 		GlobalnetCIDR:           joinConfig.GlobalnetCIDR,
 		GlobalnetClusterSize:    joinConfig.GlobalnetClusterSize,
 	}
-	if brokerInfo.IsGlobalnetEnabled() {
-		if err = r.AllocateAndUpdateGlobalCIDRConfigMap(brokerCluster.GetClient(), brokerCluster.GetAPIReader(), instance, brokerNamespace, &netconfig); err != nil {
-			klog.Errorf("Error Discovering multi cluster details: %v", err)
+	// if brokerInfo.IsGlobalnetEnabled() {
+	if err = r.AllocateAndUpdateGlobalCIDRConfigMap(brokerCluster.GetClient(), brokerCluster.GetAPIReader(), instance, brokerNamespace, &netconfig); err != nil {
+		klog.Errorf("Error Discovering multi cluster details: %v", err)
+		return err
+	}
+	// }
+
+	//
+	if networkDetails.NetworkPlugin == netconsts.NetworkPluginCalico {
+		if err := checker.EnsureCalico(r.Client); err != nil {
+			return err
+		}
+		clusterInfos, err := broker.GetClusterInfos(brokerCluster.GetAPIReader(), brokerNamespace)
+		if err != nil {
+			klog.Errorf("Unable to get cluster infos: %v", err)
+			return err
+		}
+		if err := checker.CreateOrUpdateIPPools(r.Client, r.Config, joinConfig.ClusterID, &clusterInfos); err != nil {
 			return err
 		}
 	}
@@ -212,7 +207,9 @@ func (r *KnitnetReconciler) AllocateAndUpdateGlobalCIDRConfigMap(c client.Client
 			klog.Errorf("error validating Globalnet configuration: %v", err)
 			return err
 		}
-
+		var newClusterInfo broker.ClusterInfo
+		newClusterInfo.ClusterID = joinConfig.ClusterID
+		newClusterInfo.NetworkPlugin = netconfig.NetworkPlugin
 		if globalnetInfo.GlobalnetEnabled {
 			netconfig.GlobalnetCIDR, err = globalnet.AssignGlobalnetIPs(globalnetInfo, *netconfig)
 			if err != nil {
@@ -222,14 +219,10 @@ func (r *KnitnetReconciler) AllocateAndUpdateGlobalCIDRConfigMap(c client.Client
 
 			if globalnetInfo.GlobalCidrInfo[joinConfig.ClusterID] == nil ||
 				globalnetInfo.GlobalCidrInfo[joinConfig.ClusterID].GlobalCIDRs[0] != netconfig.GlobalnetCIDR {
-				var newClusterInfo broker.ClusterInfo
-				newClusterInfo.ClusterID = joinConfig.ClusterID
 				newClusterInfo.GlobalCidr = []string{netconfig.GlobalnetCIDR}
-
-				return broker.UpdateGlobalnetConfigMap(c, brokerNamespace, globalnetConfigMap, newClusterInfo)
 			}
 		}
-		return err
+		return broker.UpdateGlobalnetConfigMap(c, brokerNamespace, globalnetConfigMap, newClusterInfo)
 	})
 	return retryErr
 }

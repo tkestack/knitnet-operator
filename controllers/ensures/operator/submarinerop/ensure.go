@@ -22,7 +22,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	consts "github.com/tkestack/knitnet-operator/controllers/ensures"
-	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/common/namespace"
+	"github.com/tkestack/knitnet-operator/controllers/ensures/common/namespace"
 	lighthouseop "github.com/tkestack/knitnet-operator/controllers/ensures/operator/lighthouse"
 	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/submarinerop/crds"
 	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/submarinerop/deployment"
