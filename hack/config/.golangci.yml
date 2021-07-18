@@ -33,7 +33,6 @@ linters:
     - gocyclo
     - gofmt
     - goimports
-    - gosec
     - gosimple
     - govet
     - ineffassign
@@ -49,6 +48,7 @@ linters:
     - whitespace
     - stylecheck
   # don't enable:
+  # - gosec
   # - gocritic
   # - bodyclose
   # - depguard

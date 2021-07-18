@@ -14,20 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package checker
+package utils
 
 import (
-	"k8s.io/klog/v2"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"github.com/tkestack/knitnet-operator/controllers/embeddedyamls"
-	"github.com/tkestack/knitnet-operator/controllers/utils"
+	"math/rand"
+	"time"
 )
 
-func EnsureK8s(c client.Client) error {
-	if err := utils.CreateOrUpdateEmbeddedCRD(c, embeddedyamls.Manifests_fix_k8s_crds_discovery_k8s_io_endpointslices_yaml); err != nil {
-		klog.Errorf("Error creating the EndpointSlice CRD: %v", err)
-		return err
+func RandStringRunes(n int) string {
+	rand.Seed(time.Now().UnixNano())
+	letterRunes := []rune("abcdefghijklmnopqrstuvwxyz0123456789")
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
 	}
-	return nil
+	return string(b)
 }

@@ -19,12 +19,13 @@ package configmaps
 import (
 	"context"
 
-	"github.com/tkestack/knitnet-operator/controllers/embeddedyamls"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/tkestack/knitnet-operator/controllers/embeddedyamls"
 )
 
 func EnsureConfigMap(c client.Client, namespace, yaml string) error {

@@ -36,9 +36,9 @@ import (
 	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/servicediscoverycr"
 	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/submarinercr"
 	"github.com/tkestack/knitnet-operator/controllers/ensures/operator/submarinerop"
+	"github.com/tkestack/knitnet-operator/controllers/utils"
 	"github.com/tkestack/knitnet-operator/controllers/versions"
 
-	netconsts "github.com/tkestack/knitnet-operator/controllers/discovery"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -49,6 +49,8 @@ import (
 	"k8s.io/client-go/util/retry"
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	netconsts "github.com/tkestack/knitnet-operator/controllers/discovery"
 )
 
 var clienttoken *v1.Secret
@@ -66,7 +68,7 @@ func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Kni
 		return err
 	}
 	if needPatch {
-		if err := checker.CreateOrUpdateEndpointslicesCRD(r.Client); err != nil {
+		if err := checker.EnsureK8s(r.Client); err != nil {
 			return err
 		}
 	}
@@ -83,7 +85,7 @@ func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Kni
 	}
 
 	if joinConfig.ClusterID == "" {
-		// TBD auto generate a cluster ID
+		joinConfig.ClusterID = utils.RandStringRunes(5)
 	}
 
 	if valid, err := isValidClusterID(joinConfig.ClusterID); !valid {
@@ -132,26 +134,10 @@ func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Kni
 		GlobalnetCIDR:           joinConfig.GlobalnetCIDR,
 		GlobalnetClusterSize:    joinConfig.GlobalnetClusterSize,
 	}
-	// if brokerInfo.IsGlobalnetEnabled() {
+
 	if err = r.AllocateAndUpdateGlobalCIDRConfigMap(brokerCluster.GetClient(), brokerCluster.GetAPIReader(), instance, brokerNamespace, &netconfig); err != nil {
 		klog.Errorf("Error Discovering multi cluster details: %v", err)
 		return err
-	}
-	// }
-
-	//
-	if networkDetails.NetworkPlugin == netconsts.NetworkPluginCalico {
-		if err := checker.EnsureCalico(r.Client); err != nil {
-			return err
-		}
-		clusterInfos, err := broker.GetClusterInfos(brokerCluster.GetAPIReader(), brokerNamespace)
-		if err != nil {
-			klog.Errorf("Unable to get cluster infos: %v", err)
-			return err
-		}
-		if err := checker.CreateOrUpdateIPPools(r.Client, r.Config, joinConfig.ClusterID, &clusterInfos); err != nil {
-			return err
-		}
 	}
 
 	klog.Info("Deploying the Submariner operator")
@@ -187,6 +173,18 @@ func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Kni
 			return err
 		}
 		klog.Info("Service discovery is up and running")
+	}
+
+	// Handle calico network plugin case
+	if networkDetails.NetworkPlugin == netconsts.NetworkPluginCalico {
+		clusterInfos, err := broker.GetClusterInfos(brokerCluster.GetAPIReader(), brokerNamespace)
+		if err != nil {
+			klog.Errorf("Unable to get cluster infos: %v", err)
+			return err
+		}
+		if err := checker.EnsureCalico(r.Client, r.Config, joinConfig.ClusterID, &clusterInfos); err != nil {
+			return err
+		}
 	}
 	return nil
 }

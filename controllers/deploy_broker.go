@@ -38,7 +38,7 @@ func (r *KnitnetReconciler) DeploySubmerinerBroker(instance *operatorv1alpha1.Kn
 		return err
 	}
 	if needPatch {
-		if err := checker.CreateOrUpdateEndpointslicesCRD(r.Client); err != nil {
+		if err := checker.EnsureK8s(r.Client); err != nil {
 			return err
 		}
 	}
