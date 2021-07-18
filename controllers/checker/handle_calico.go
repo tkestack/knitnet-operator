@@ -17,26 +17,22 @@ limitations under the License.
 package checker
 
 import (
+	"bytes"
 	"context"
+	"text/template"
 
 	submarinerv1 "github.com/submariner-io/submariner/pkg/apis/submariner.io/v1"
-	"k8s.io/client-go/rest"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/yaml"
 
 	netconsts "github.com/tkestack/knitnet-operator/controllers/discovery"
 	"github.com/tkestack/knitnet-operator/controllers/ensures/broker"
-	"github.com/tkestack/knitnet-operator/controllers/ensures/common/ippools"
 )
 
-func EnsureCalico(c client.Client, config *rest.Config, currentClusterID string, clusterInfos *[]broker.ClusterInfo) error {
-	if err := CreateOrUpdateIPPools(c, config, currentClusterID, clusterInfos); err != nil {
-		return err
-	}
-	return nil
-}
-
-func CreateOrUpdateIPPools(c client.Client, config *rest.Config, currentClusterID string, clusterInfos *[]broker.ClusterInfo) error {
+func EnsureCalico(c client.Client, currentClusterID string, clusterInfos *[]broker.ClusterInfo) error {
 	klog.Infof("Creating IPPools")
 	clusters, err := GetClusters(c)
 	if err != nil {
@@ -47,10 +43,10 @@ func CreateOrUpdateIPPools(c client.Client, config *rest.Config, currentClusterI
 			continue
 		}
 		cluster := GetClusterWithID(clusterInfo.ClusterID, clusters)
-		if err := ippools.EnsureIPPool(config, cluster.Spec.ClusterID+"-pod-cidr", cluster.Spec.ClusterCIDR[0]); err != nil {
+		if err := CreateOrUpdateIPPools(c, cluster.Spec.ClusterID+"-pod-cidr", cluster.Spec.ClusterCIDR[0]); err != nil {
 			return err
 		}
-		if err := ippools.EnsureIPPool(config, cluster.Spec.ClusterID+"-svc-cidr", cluster.Spec.ServiceCIDR[0]); err != nil {
+		if err := CreateOrUpdateIPPools(c, cluster.Spec.ClusterID+"-svc-cidr", cluster.Spec.ServiceCIDR[0]); err != nil {
 			return err
 		}
 	}
@@ -73,4 +69,66 @@ func GetClusters(c client.Client) (*submarinerv1.ClusterList, error) {
 		return nil, err
 	}
 	return clusters, nil
+}
+
+const ippool = `
+---
+apiVersion: crd.projectcalico.org/v1
+kind: IPPool
+metadata:
+  name: {{ .name }}
+spec:
+  cidr: {{ .cidr }}
+  natOutgoing: false
+  disabled: true
+`
+
+type IPPoolData struct {
+	Name string
+	CIDR string
+}
+
+func CreateOrUpdateIPPools(c client.Client, name, cidr string) error {
+	ippoolData := IPPoolData{
+		Name: name,
+		CIDR: cidr,
+	}
+	var ippoolYaml bytes.Buffer
+	t := template.Must(template.New("ippool").Parse(ippool))
+	if err := t.Execute(&ippoolYaml, ippoolData); err != nil {
+		return err
+	}
+	if err := createUpdateFromYaml(c, ippoolYaml.Bytes()); err != nil {
+		return err
+	}
+	return nil
+}
+
+func createUpdateFromYaml(c client.Client, yamlContent []byte) error {
+	obj := &unstructured.Unstructured{}
+	jsonSpec, err := yaml.YAMLToJSON(yamlContent)
+	if err != nil {
+		klog.Errorf("could not convert yaml to json: %v", err)
+		return err
+	}
+
+	if err := obj.UnmarshalJSON(jsonSpec); err != nil {
+		klog.Errorf("could not unmarshal resource: %v", err)
+		return err
+	}
+
+	err = c.Create(context.TODO(), obj)
+	if err != nil {
+		if errors.IsAlreadyExists(err) {
+			if err := c.Update(context.TODO(), obj); err != nil {
+				klog.Errorf("could not Update resource: %v", err)
+				return err
+			}
+			return nil
+		}
+		klog.Errorf("could not Create resource: %v", err)
+		return err
+	}
+
+	return nil
 }

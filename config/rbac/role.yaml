@@ -38,6 +38,12 @@ rules:
   verbs:
   - '*'
 - apiGroups:
+  - crd.projectcalico.org
+  resources:
+  - ippools
+  verbs:
+  - create
+- apiGroups:
   - discovery.k8s.io
   resources:
   - endpointslices

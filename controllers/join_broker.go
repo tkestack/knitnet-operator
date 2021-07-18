@@ -182,7 +182,7 @@ func (r *KnitnetReconciler) JoinSubmarinerCluster(instance *operatorv1alpha1.Kni
 			klog.Errorf("Unable to get cluster infos: %v", err)
 			return err
 		}
-		if err := checker.EnsureCalico(r.Client, r.Config, joinConfig.ClusterID, &clusterInfos); err != nil {
+		if err := checker.EnsureCalico(r.Client, joinConfig.ClusterID, &clusterInfos); err != nil {
 			return err
 		}
 	}
