@@ -22,9 +22,9 @@ import (
 	"text/template"
 
 	submarinerv1 "github.com/submariner-io/submariner/pkg/apis/submariner.io/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/klog/v2"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/yaml"
 
@@ -43,10 +43,10 @@ func EnsureCalico(c client.Client, currentClusterID string, clusterInfos *[]brok
 			continue
 		}
 		cluster := getClusterWithID(clusterInfo.ClusterID, clusters)
-		if err := createOrUpdateIPPools(c, cluster.Spec.ClusterID+"-pod-cidr", cluster.Spec.ClusterCIDR[0]); err != nil {
+		if err := createOrUpdateIPPools(c, "pod-cidr-"+cluster.Spec.ClusterID, cluster.Spec.ClusterCIDR[0]); err != nil {
 			return err
 		}
-		if err := createOrUpdateIPPools(c, cluster.Spec.ClusterID+"-svc-cidr", cluster.Spec.ServiceCIDR[0]); err != nil {
+		if err := createOrUpdateIPPools(c, "svc-cidr-"+cluster.Spec.ClusterID, cluster.Spec.ServiceCIDR[0]); err != nil {
 			return err
 		}
 	}
@@ -98,6 +98,7 @@ func createOrUpdateIPPools(c client.Client, name, cidr string) error {
 	if err := t.Execute(&ippoolYaml, ippoolData); err != nil {
 		return err
 	}
+	klog.Infof("Create or update IPPool %s", name)
 	if err := createUpdateFromYaml(c, ippoolYaml.Bytes()); err != nil {
 		return err
 	}
@@ -116,17 +117,14 @@ func createUpdateFromYaml(c client.Client, yamlContent []byte) error {
 		klog.Errorf("could not unmarshal resource: %v", err)
 		return err
 	}
-	if err = c.Create(context.TODO(), obj); err != nil {
-		if errors.IsAlreadyExists(err) {
-			if err := c.Update(context.TODO(), obj); err != nil {
-				klog.Errorf("could not Update resource: %v", err)
-				return err
-			}
-			return nil
-		}
-		klog.Errorf("could not Create resource: %v", err)
+
+	or, err := ctrl.CreateOrUpdate(context.TODO(), c, obj, func() error {
+		return nil
+	})
+	if err != nil {
+		klog.Errorf("Failed to %s Object %s: %v", or, obj.GetName(), err)
 		return err
 	}
-
+	klog.Infof("Object %s %s", obj.GetName(), or)
 	return nil
 }
