@@ -6,7 +6,6 @@ require (
 	github.com/onsi/ginkgo v1.16.1
 	github.com/onsi/gomega v1.11.0
 	github.com/pkg/errors v0.9.1
-	github.com/projectcalico/api v0.0.0-20210715003201-f67780b60cd8
 	github.com/submariner-io/submariner v0.9.1
 	github.com/submariner-io/submariner-operator v0.9.1
 	k8s.io/api v0.21.0-rc.0

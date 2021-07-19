@@ -34,7 +34,7 @@ import (
 
 func EnsureCalico(c client.Client, currentClusterID string, clusterInfos *[]broker.ClusterInfo) error {
 	klog.Infof("Creating IPPools")
-	clusters, err := GetClusters(c)
+	clusters, err := getClusters(c)
 	if err != nil {
 		return err
 	}
@@ -42,18 +42,18 @@ func EnsureCalico(c client.Client, currentClusterID string, clusterInfos *[]brok
 		if clusterInfo.ClusterID == currentClusterID || clusterInfo.NetworkPlugin != netconsts.NetworkPluginCalico {
 			continue
 		}
-		cluster := GetClusterWithID(clusterInfo.ClusterID, clusters)
-		if err := CreateOrUpdateIPPools(c, cluster.Spec.ClusterID+"-pod-cidr", cluster.Spec.ClusterCIDR[0]); err != nil {
+		cluster := getClusterWithID(clusterInfo.ClusterID, clusters)
+		if err := createOrUpdateIPPools(c, cluster.Spec.ClusterID+"-pod-cidr", cluster.Spec.ClusterCIDR[0]); err != nil {
 			return err
 		}
-		if err := CreateOrUpdateIPPools(c, cluster.Spec.ClusterID+"-svc-cidr", cluster.Spec.ServiceCIDR[0]); err != nil {
+		if err := createOrUpdateIPPools(c, cluster.Spec.ClusterID+"-svc-cidr", cluster.Spec.ServiceCIDR[0]); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func GetClusterWithID(ID string, clusters *submarinerv1.ClusterList) *submarinerv1.Cluster {
+func getClusterWithID(ID string, clusters *submarinerv1.ClusterList) *submarinerv1.Cluster {
 	for _, cluster := range clusters.Items {
 		if cluster.Spec.ClusterID == ID {
 			return &cluster
@@ -62,7 +62,7 @@ func GetClusterWithID(ID string, clusters *submarinerv1.ClusterList) *submariner
 	return nil
 }
 
-func GetClusters(c client.Client) (*submarinerv1.ClusterList, error) {
+func getClusters(c client.Client) (*submarinerv1.ClusterList, error) {
 	clusters := &submarinerv1.ClusterList{}
 	if err := c.List(context.TODO(), clusters); err != nil {
 		klog.Errorf("Failed to list Cluster: %v", err)
@@ -76,21 +76,21 @@ const ippool = `
 apiVersion: crd.projectcalico.org/v1
 kind: IPPool
 metadata:
-  name: {{ .name }}
+  name: {{ .NAME }}
 spec:
-  cidr: {{ .cidr }}
+  cidr: {{ .CIDR }}
   natOutgoing: false
   disabled: true
 `
 
 type IPPoolData struct {
-	Name string
+	NAME string
 	CIDR string
 }
 
-func CreateOrUpdateIPPools(c client.Client, name, cidr string) error {
+func createOrUpdateIPPools(c client.Client, name, cidr string) error {
 	ippoolData := IPPoolData{
-		Name: name,
+		NAME: name,
 		CIDR: cidr,
 	}
 	var ippoolYaml bytes.Buffer
@@ -116,9 +116,7 @@ func createUpdateFromYaml(c client.Client, yamlContent []byte) error {
 		klog.Errorf("could not unmarshal resource: %v", err)
 		return err
 	}
-
-	err = c.Create(context.TODO(), obj)
-	if err != nil {
+	if err = c.Create(context.TODO(), obj); err != nil {
 		if errors.IsAlreadyExists(err) {
 			if err := c.Update(context.TODO(), obj); err != nil {
 				klog.Errorf("could not Update resource: %v", err)
