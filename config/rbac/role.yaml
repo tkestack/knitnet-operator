@@ -43,6 +43,7 @@ rules:
   - ippools
   verbs:
   - create
+  - update
 - apiGroups:
   - discovery.k8s.io
   resources:

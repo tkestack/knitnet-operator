@@ -63,7 +63,7 @@ const (
 // +kubebuilder:rbac:groups=operator.openshift.io,resources=dnses,verbs=get;list;watch;update
 
 // Only for calico network plugin enabled
-// +kubebuilder:rbac:groups=crd.projectcalico.org,resources=ippools,verbs=create
+// +kubebuilder:rbac:groups=crd.projectcalico.org,resources=ippools,verbs=create;update
 
 // +kubebuilder:rbac:groups=security.openshift.io,resources=securitycontextconstraints,verbs=get
 // +kubebuilder:rbac:groups=monitoring.coreos.com,resources=servicemonitors,verbs=get;create
