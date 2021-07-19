@@ -26,6 +26,7 @@
     - [Prerequisites](#prerequisites)
     - [Quickstart](#quickstart)
     - [Verify](#verify)
+    - [Demo](#demo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -101,7 +102,7 @@ The setup can be done by using `kustomize`.
     - Export `submariner-broker-info` configmap to a yaml file
 
       ```shell
-      kubectl -n knitnet-operator-system get cm submariner-broker-info -oyaml > submariner-broker-info.yaml
+      kubectl -n submariner-k8s-broker get cm submariner-broker-info -oyaml > submariner-broker-info.yaml
       ```
 
 1. Join cluster to broker
@@ -183,3 +184,9 @@ The setup can be done by using `kustomize`.
     ```shell
     curl nginx.default.svc.clusterset.local
     ```
+
+### Demo
+
+A simple demo for deploy broker cluster, join other clusters to the broker cluster, verify service discovery
+
+<img src="./docs/icons/demo.gif">
