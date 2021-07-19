@@ -10,7 +10,7 @@ Kubernetes 实现了网络虚拟化，让容器可以在同一集群中的多个
 - 适配常见的网络 CNI 插件
 - 允许通过云原生的方式部署，创建自定义资源 CR 就可以快速在多集群之间部署
 
-## 开源选择 Sumariner
+## 开源选择 Submariner
 
 Submariner 是由 Rancher 开源的跨集群网络互通解决方案，通过创建了 IPSec 隧道和路径，使不同的 Kubernetes 集群中的容器能够直接连接。
 
