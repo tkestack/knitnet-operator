@@ -106,9 +106,24 @@ The setup can be done by using `kustomize`.
         make deploy
         ```
 
-    - Deploy broker on `cluster-a`
+    - Setup `publicAPIServerURL`
 
-      Add `publicAPIServerURL` in `./config/samples/deploy_broker.yaml`, find the public apiserver URL with command: `kubectl config view  | grep server | cut -f 2- -d ":" | tr -d " "`
+      Add `publicAPIServerURL` in `./config/samples/deploy_broker.yaml`, `https://xxx.xxx.xxx.xxx:pppp` must be a public apiserver address, this address should be access by joined cluster.
+      Find the public apiserver URL with command: `kubectl config view  | grep server | cut -f 2- -d ":" | tr -d " "`
+
+      ```yaml
+      apiVersion: operator.tkestack.io/v1alpha1
+      kind: Knitnet
+      metadata:
+        name: deploy-broker-sample
+      spec:
+        brokerConfig:
+          publicAPIServerURL: https://xxx.xxx.xxx.xxx:pppp
+          # defaultGlobalnetClusterSize: 65336
+          serviceDiscoveryEnabled: true
+      ```
+
+    - Deploy broker on `cluster-a`
 
       ```shell
       kubectl -n knitnet-operator-system apply -f ./config/samples/deploy_broker.yaml
