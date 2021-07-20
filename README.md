@@ -22,11 +22,12 @@
     - [Purpose](#purpose)
     - [Supported Features](#supported-features)
   - [Getting Started](#getting-started)
+    - [Demo](#demo)
     - [Example](#example)
     - [Prerequisites](#prerequisites)
     - [Quickstart](#quickstart)
     - [Verify](#verify)
-    - [Demo](#demo)
+    - [Quickstart with Ansible](#quickstart-with-ansible)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -56,6 +57,12 @@ Here the features which are supported by this operator:-
 
 ## Getting Started
 
+### Demo
+
+A simple demo for deploy broker cluster, join other clusters to the broker cluster, verify service discovery
+
+<img src="./docs/icons/demo.gif">
+
 ### Example
 
 The configuration of Knitnet setup should be described in Knitnet CRD. You will find all the examples manifests in [example](./config/samples) folder.
@@ -73,6 +80,14 @@ The setup can be done by using `kustomize`.
     ```shell
     git clone https://github.com/tkestack/knitnet-operator.git
     cd knitnet-operator
+    ```
+
+1. Setup goproxy (optional)
+
+    If you cannot access `GOPROXY="https://proxy.golang.org,direct"`, try `goproxy.cn`
+
+    ```shell
+    go env -w GOPROXY=https://goproxy.cn,direct
     ```
 
 1. Deploy broker
@@ -185,8 +200,6 @@ The setup can be done by using `kustomize`.
     curl nginx.default.svc.clusterset.local
     ```
 
-### Demo
+### Quickstart with Ansible
 
-A simple demo for deploy broker cluster, join other clusters to the broker cluster, verify service discovery
-
-<img src="./docs/icons/demo.gif">
+I don't have any kubernetes cluster, I want a one-click deployment, he came [deploy submariner with ansible](https://github.com/DanielXLee/deploy-submariner/blob/main/README.md)
