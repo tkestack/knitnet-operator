@@ -208,6 +208,12 @@ The setup can be done by using `kustomize`.
     ```shell
     kubectl -n default  run --generator=run-pod/v1 tmp-shell --rm -i --tty --image quay.io/submariner/nettest -- /bin/bash
     ```
+    
+    For `kubectl` version > 1.18
+ 
+    ```shell
+    kubectl run --rm -it --image=quay.io/submariner/nettest nettest -- /bin/bash
+    ```
 
     Try to curl nginx service created in `cluster-b`
 
